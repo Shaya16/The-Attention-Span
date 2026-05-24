@@ -8,7 +8,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  site: 'https://your-blog.pages.dev',
+  site: 'https://the-attention-span.pages.dev',
   integrations: [
     mdx({
       remarkPlugins: [remarkMath],
