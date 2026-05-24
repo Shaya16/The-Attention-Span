@@ -6,13 +6,13 @@
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-ink: oklch(0.18 0.02 270);
-  --color-paper: oklch(0.99 0.005 90);
-  --color-muted: oklch(0.55 0.02 270);
-  --color-line: oklch(0.92 0.01 270);
-  --color-accent: oklch(0.62 0.22 25);
-  --color-accent-2: oklch(0.72 0.18 200);
-  --color-accent-3: oklch(0.78 0.18 140);
+  --color-ink: oklch(0.20 0.01 270);
+  --color-paper: oklch(1 0 0);
+  --color-muted: oklch(0.55 0.01 270);
+  --color-line: oklch(0.93 0.005 270);
+  --color-accent: oklch(0.28 0.04 250);
+  --color-accent-2: oklch(0.55 0.10 230);
+  --color-accent-3: oklch(0.55 0.10 150);
 }
 
 @layer base {
@@ -25,15 +25,12 @@
   }
 
   body {
-    background:
-      radial-gradient(1200px 600px at 80% -10%, color-mix(in oklch, var(--color-accent) 8%, transparent) 0%, transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, color-mix(in oklch, var(--color-accent-2) 8%, transparent) 0%, transparent 60%),
-      var(--color-paper);
+    background: var(--color-paper);
     min-height: 100vh;
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--color-accent) 25%, transparent);
+    background: color-mix(in oklch, var(--color-accent) 20%, transparent);
   }
 }
 
@@ -104,11 +101,23 @@
   }
 
   .prose-post blockquote {
-    border-left: 3px solid var(--color-accent);
+    border-left: 3px solid var(--color-line);
     padding-left: 1rem;
     margin: 1.5rem 0;
     font-style: italic;
     color: var(--color-muted);
+  }
+
+  .prose-post [dir="rtl"] blockquote {
+    border-left: none;
+    border-right: 3px solid var(--color-line);
+    padding-left: 0;
+    padding-right: 1rem;
+  }
+
+  .prose-post [dir="rtl"] ul, .prose-post [dir="rtl"] ol {
+    padding-left: 0;
+    padding-right: 1.5rem;
   }
 
   .prose-post ul, .prose-post ol {

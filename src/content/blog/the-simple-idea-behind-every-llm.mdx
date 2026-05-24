@@ -1,0 +1,287 @@
+---
+title: "The simple idea behind every LLM"
+description: "How attention works, from the ground up. The single trick behind every modern language model."
+pubDate: 2026-05-24
+tags: ["attention", "transformers", "LLM"]
+---
+
+import AttentionDemo from '../../components/viz/AttentionDemo';
+
+<div dir="rtl" lang="he">
+
+> כל מה שאתם מכירים מ-LLM, ChatGPT, Claude, Gemini, Llama, מסתמך על רעיון אחד שפורסם ב-2017. הרעיון הזה כל כך פשוט שאחרי שתבינו אותו, תשאלו את עצמכם איך אף אחד לא חשב עליו קודם.
+
+## תרגיל קטן לפני שמתחילים
+
+קראו את המשפט הבא:
+
+> "הקופסה לא נכנסה למזוודה כי **היא** הייתה גדולה מדי."
+
+מי הייתה גדולה מדי? הקופסה.
+
+עכשיו תחליפו מילה אחת:
+
+> "הקופסה לא נכנסה למזוודה כי **היא** הייתה קטנה מדי."
+
+מי הייתה קטנה מדי? המזוודה.
+
+עצרו רגע. המוח שלכם עשה משהו מדהים. המילה "היא" היא בדיוק אותה מילה בשני המשפטים, אבל הפרשנות שלה התהפכה לגמרי בגלל מילה אחת במקום אחר. איך?
+
+המוח שלכם נתן משקל שונה לכל מילה במשפט. כש"גדולה" הייתה שם, "הקופסה" קיבלה את רוב תשומת הלב של "היא". כשהחלפנו ל"קטנה", פתאום "המזוודה" קיבלה את המשקל.
+
+זה בדיוק מה ש-attention עושה. וזה הרעיון היחיד שמאחורי כל LLM שאתם מכירים.
+
+## אבל קודם, איך מחשב בכלל "מבין" מילים?
+
+לפני שנדבר על איך המודל שוקל מילים, צריך לדבר על איך הוא מייצג אותן בכלל. מחשב לא יודע מה זה "קופסה", הוא יודע רק מספרים.
+
+הפתרון נקרא **embedding**. כל מילה הופכת לרשימת מספרים, וקטור בחלל רב-ממדי. החוכמה היא שמילים דומות מקבלות וקטורים שמצביעים לכיוון דומה.
+
+תארו לעצמכם חלל דו-ממדי (האמיתי הוא ממדים רבים, אבל לצורך האינטואיציה):
+
+```
+        עצוב
+          ↑
+שמח  ←  ●     ●  →  כועס
+          ↓
+        אדיש
+```
+
+"שמח" ו"מאושר" יהיו קרובים אחד לשני. "שמח" ו"עצוב" יהיו רחוקים, אבל על אותו ציר (רגש). "שמח" ו"מכונית" יהיו במקומות לגמרי אחרים.
+
+**זה הקסם של embeddings:** הם הופכים יחסים סמנטיים ליחסים גאומטריים. ועל הגאומטריה הזאת אפשר לעשות חשבון.
+
+## הבעיה האמיתית
+
+עכשיו השאלה שלנו הופכת מדויקת. נתון משפט עם מילים $w_1, w_2, ..., w_n$, ולכל אחת יש וקטור embedding $x_i$. אנחנו רוצים לחשב לכל מילה ייצוג חדש $y_i$, ש**לוקח בחשבון את כל שאר המילים, אבל עם משקל שונה לכל אחת**.
+
+במילים אחרות:
+
+$$y_i = \sum_{j=1}^{n} \alpha_{i,j} \cdot x_j$$
+
+כאשר $\alpha_{i,j}$ הוא המשקל שמילה $i$ נותנת למילה $j$.
+
+הכל מסתכם בשאלה אחת: **איך מחשבים את $\alpha_{i,j}$?**
+
+## כלי ראשון: מד הדמיון
+
+אם יש לי שני וקטורים, איך אני מודד עד כמה הם דומים? יש כלי פשוט ומדהים שנקרא **dot product** (מכפלה סקלרית):
+
+$$a \cdot b = \sum_i a_i b_i$$
+
+הקסם של dot product הוא גאומטרי:
+- אם שני הוקטורים מצביעים לאותו כיוון, התוצאה **גבוהה**
+- אם הם ניצבים, התוצאה **אפס**
+- אם הם מנוגדים, התוצאה **שלילית**
+
+</div>
+
+<figure className="demo-frame not-prose my-8 text-center">
+  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+    Demo placeholder
+  </figcaption>
+  <p className="mt-3 italic text-[var(--color-muted)]">
+    Visualization 1: dot product. Two vectors you can rotate, with the dot product updating in real time. (Component not built yet.)
+  </p>
+</figure>
+
+<div dir="rtl" lang="he">
+
+אז אולי הפתרון הוא פשוט: $\alpha_{i,j} = x_i \cdot x_j$? כלומר, "כמה המילה דומה לי, היא תקבל יותר משקל"?
+
+זה רעיון לא רע, אבל יש לו בעיה.
+
+## למה דמיון פשוט לא מספיק
+
+בחזרה למשפט שלנו: "הקופסה לא נכנסה למזוודה כי **היא** הייתה גדולה מדי."
+
+המילה "היא" צריכה להסתכל על "קופסה" כי שואלים אותה "מי הצירוף?". אבל באותו משפט, אם נשאל אותה "מה הפעולה?", היא הייתה צריכה להסתכל על "נכנסה".
+
+**אותה מילה צריכה להיות מסוגלת לשאול שאלות שונות בהקשרים שונים.** ו-dot product פשוט בין embeddings לא מאפשר את הגמישות הזאת.
+
+צריך משהו יותר חכם.
+
+## הטריק הגדול: Q, K, V
+
+הנה התובנה המהפכנית: במקום להשתמש ב-embedding ישירות, נלמד **שלוש הטלות** של כל מילה.
+
+לכל מילה $i$ נחשב:
+
+$$Q_i = W_Q \cdot x_i \quad \text{(Query — מה אני מחפש?)}$$
+$$K_i = W_K \cdot x_i \quad \text{(Key — מה אני יכול להציע?)}$$
+$$V_i = W_V \cdot x_i \quad \text{(Value — מה המידע שלי?)}$$
+
+כאשר $W_Q, W_K, W_V$ הן מטריצות נלמדות (אלו הפרמטרים שהמודל מאמן).
+
+**האנלוגיה הכי טובה היא חיפוש בגוגל:**
+
+- כשאתם מקלידים שאילתת חיפוש, זה ה-**Query**
+- לכל אתר באינדקס יש תיאור / מטא-טאגים, זה ה-**Key**
+- התוכן של האתר עצמו, זה ה-**Value**
+
+גוגל מוצא התאמה בין השאילתה שלכם (Q) לתיאורי האתרים (K), ומחזיר את התוכן (V) של ההתאמות הטובות ביותר.
+
+Attention עושה בדיוק את זה, רק שכל מילה במשפט היא גם שואלת וגם נשאלת בו-זמנית.
+
+**הקסם פה הוא ש-Q, K, V הן הטלות שונות של אותה מילה.** המודל יכול ללמוד ש"היא" שואלת שאלות מסוג אחד דרך $W_Q$, ומציעה מידע מסוג אחר דרך $W_K$. ההפרדה הזאת היא מה שהופך את המנגנון לכל כך גמיש.
+
+## חישוב המשקלים
+
+עכשיו, בשביל לחשב כמה משקל מילה $i$ נותנת למילה $j$, נשווה את ה-Query של $i$ לכל ה-Keys:
+
+$$\text{score}(i, j) = Q_i \cdot K_j$$
+
+מעולה. יש לנו ציון. אבל יש בעיה, הציון הזה יכול להיות כל מספר, חיובי, שלילי, ענק. אנחנו רוצים שהמשקלים יהיו "אמיתיים":
+- כולם חיוביים
+- מסתכמים ל-1 (כדי שזה יהיה ממוצע משוקלל)
+
+הפתרון המתבקש: **softmax**.
+
+## softmax: מציונים להסתברויות
+
+softmax לוקח רשימה של מספרים והופך אותם להתפלגות הסתברות:
+
+$$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_k e^{z_k}}$$
+
+זה לא קסם, זה פשוט מאוד. שני שלבים:
+1. **מעריך:** $e^{z_i}$ הופך כל מספר לחיובי (וגם מגדיל הבדלים)
+2. **נירמול:** מחלקים בסכום כך שהכל יסתכם ל-1
+
+</div>
+
+<figure className="demo-frame not-prose my-8 text-center">
+  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+    Demo placeholder
+  </figcaption>
+  <p className="mt-3 italic text-[var(--color-muted)]">
+    Visualization 2: softmax demo. Sliders for 3-5 input values, with the resulting probabilities shown in real time. (Component not built yet.)
+  </p>
+</figure>
+
+<div dir="rtl" lang="he">
+
+אז המשקל הסופי שלנו:
+
+$$\alpha_{i,j} = \text{softmax}_j(Q_i \cdot K_j) = \frac{e^{Q_i \cdot K_j}}{\sum_k e^{Q_i \cdot K_k}}$$
+
+## הניואנס המתמטי שכולם מדלגים עליו
+
+עד עכשיו זה הסיפור שהרוב מספרים. אבל יש פה ניואנס יפה שרוב ההסברים מדלגים עליו, ועליו אני רוצה להתעכב.
+
+הנוסחה האמיתית של attention היא לא $Q K^T$, אלא:
+
+$$\frac{Q K^T}{\sqrt{d_k}}$$
+
+מאיפה הגיע ה-$\sqrt{d_k}$? ($d_k$ הוא הממד של וקטורי ה-Query וה-Key.)
+
+הנה האינטואיציה: נניח ש-$Q$ ו-$K$ הם וקטורים אקראיים שכל רכיב שלהם נדגם מהתפלגות עם שונות 1. ה-dot product שלהם הוא סכום של $d_k$ מכפלות, ולכן השונות שלו היא $d_k$, וסטיית התקן היא $\sqrt{d_k}$.
+
+מה זה אומר? **כשהוקטורים ארוכים, ה-dot products הופכים גדולים יותר בממוצע.**
+
+ולמה זה רע? כי softmax היא רגישה מאוד לגודל הקלט. אם תכניסו ל-softmax את `[1, 2, 3]` תקבלו פיזור יחסית רך. אבל אם תכניסו `[10, 20, 30]`, כמעט כל המסה תהיה על האיבר השלישי.
+
+</div>
+
+<figure className="demo-frame not-prose my-8 text-center">
+  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+    Demo placeholder
+  </figcaption>
+  <p className="mt-3 italic text-[var(--color-muted)]">
+    Visualization 3: the effect of scale on softmax. Same as #2, plus a slider that multiplies all the scores. You can watch softmax sharpen as the scaling factor grows. (Component not built yet.)
+  </p>
+</figure>
+
+<div dir="rtl" lang="he">
+
+החלוקה ב-$\sqrt{d_k}$ מנרמלת את הציונים חזרה לקנה מידה הגיוני. זה שומר על softmax "רכה" מספיק כדי שגרדיאנטים יזרמו באימון.
+
+זה ניואנס קטן, אבל בלעדיו המודל לא היה מתאמן בכלל.
+
+## הנוסחה המלאה
+
+עכשיו אפשר להציג את הנוסחה המפורסמת, וכל איבר בה יהיה הגיוני:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$$
+
+בואו נקרא אותה ביחד:
+
+- $Q K^T$ — ציוני דמיון בין כל זוג מילים (Query מול Key)
+- $\sqrt{d_k}$ — נירמול לשמירה על softmax רכה
+- $\text{softmax}$ — המרת ציונים למשקלים שמסתכמים ל-1
+- כפל ב-$V$ — שילוב המידע (Values) לפי המשקלים
+
+הנוסחה כבר לא מאיימת, היא סיכום של הדיון שלנו.
+
+## חזרה למשפט
+
+נחזור לדוגמה: "הקופסה לא נכנסה למזוודה כי היא הייתה גדולה מדי."
+
+</div>
+
+<AttentionDemo client:visible defaultSentence="הקופסה לא נכנסה למזוודה כי היא הייתה גדולה מדי" />
+
+<div dir="rtl" lang="he">
+
+הערה: המשקלים בדמו למעלה מחושבים מהיוריסטיקה פשוטה (מרחק בין מילים + אותיות משותפות), לא ממודל אמיתי. הם נועדו רק להראות איך נראה visualization של attention. בפוסט הבא נחבר אותה למודל אמיתי.
+
+זה ה-payoff. ראינו איך attention באמת "מבין" את המשפט: היא לא משננת את המילים, היא לומדת מי מסתכל על מי.
+
+## מימוש ב-PyTorch
+
+עכשיו אפשר לראות כמה זה פשוט בקוד:
+
+```python
+import torch
+import torch.nn.functional as F
+import math
+
+def attention(Q, K, V):
+    """
+    Q, K, V: tensors of shape (batch, seq_len, d_k)
+    Returns: tensor of shape (batch, seq_len, d_k)
+    """
+    d_k = Q.size(-1)
+
+    # 1. Score matrix: QK^T / sqrt(d_k)
+    scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(d_k)
+
+    # 2. Apply softmax to get attention weights
+    weights = F.softmax(scores, dim=-1)
+
+    # 3. Multiply by V to get weighted values
+    output = torch.matmul(weights, V)
+
+    return output, weights
+
+
+class SelfAttention(torch.nn.Module):
+    def __init__(self, d_model, d_k):
+        super().__init__()
+        self.W_Q = torch.nn.Linear(d_model, d_k)
+        self.W_K = torch.nn.Linear(d_model, d_k)
+        self.W_V = torch.nn.Linear(d_model, d_k)
+
+    def forward(self, x):
+        # x: (batch, seq_len, d_model)
+        Q = self.W_Q(x)  # (batch, seq_len, d_k)
+        K = self.W_K(x)  # (batch, seq_len, d_k)
+        V = self.W_V(x)  # (batch, seq_len, d_k)
+
+        return attention(Q, K, V)
+```
+
+זה הכל. כל ה-LLMs שאתם מכירים בנויים מהבלוקים האלה, מוערמים זה על זה.
+
+## מה הלאה?
+
+ראינו attention עם "ראש" אחד, $W_Q, W_K, W_V$ אחד. אבל במציאות, מודלים משתמשים ב-**Multi-Head Attention**, מספר מקבילי של ראשי attention, כל אחד עם זוויות מבט אחרות על אותו משפט.
+
+למה ראש אחד לא מספיק? למה כל ראש לומד "תפקיד" שונה? ואיך זה מתחבר לארכיטקטורת ה-Transformer המלאה?
+
+על זה נדבר בפוסט הבא.
+
+---
+
+**אם הפוסט הזה עזר לכם, שתפו אותו עם מישהו שעדיין חושב ש-ChatGPT 'מבין' אותו.**
+
+</div>
