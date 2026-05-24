@@ -101,57 +101,36 @@
   }
 
   .prose-post blockquote {
-    border-left: 3px solid var(--color-line);
-    padding-left: 1rem;
+    border-inline-start: 3px solid var(--color-line);
+    padding-inline-start: 1rem;
     margin: 1.5rem 0;
     font-style: italic;
     color: var(--color-muted);
   }
 
-  .prose-post[dir="rtl"] blockquote,
-  .prose-post [dir="rtl"] blockquote {
-    border-left: none;
-    border-right: 3px solid var(--color-line);
-    padding-left: 0;
-    padding-right: 1rem;
-  }
-
-  .prose-post[dir="rtl"] ul,
-  .prose-post[dir="rtl"] ol,
-  .prose-post [dir="rtl"] ul,
-  .prose-post [dir="rtl"] ol {
-    padding-left: 0;
-    padding-right: 1.5rem;
-  }
-
   .prose-post ul, .prose-post ol {
     margin: 1.25rem 0;
-    padding-left: 1.5rem;
+    padding-inline-start: 1.5rem;
   }
 
-  /* Keep code blocks LTR even inside RTL prose — code reads left-to-right */
-  .prose-post[dir="rtl"] pre,
-  .prose-post [dir="rtl"] pre {
+  /* Code blocks ALWAYS render LTR — code reads left-to-right regardless of surrounding text direction */
+  .prose-post pre {
     direction: ltr;
     text-align: left;
   }
 
-  /* Inline code inside RTL stays LTR but flows in the line */
-  .prose-post[dir="rtl"] code:not(pre code),
-  .prose-post [dir="rtl"] code:not(pre code) {
+  .prose-post code:not(pre code) {
     direction: ltr;
     unicode-bidi: isolate;
   }
 
-  /* KaTeX math is LTR regardless of surrounding direction */
-  .prose-post[dir="rtl"] .katex,
-  .prose-post [dir="rtl"] .katex {
+  /* KaTeX math ALWAYS renders LTR — math notation is direction-independent */
+  .prose-post .katex {
     direction: ltr;
     unicode-bidi: isolate;
   }
 
-  .prose-post[dir="rtl"] .katex-display,
-  .prose-post [dir="rtl"] .katex-display {
+  .prose-post .katex-display {
     direction: ltr;
     text-align: center;
   }

@@ -6,6 +6,8 @@ tags: ["attention", "transformers", "LLM"]
 ---
 
 import AttentionDemo from '../../components/viz/AttentionDemo';
+import DotProduct from '../../components/viz/DotProduct';
+import Softmax from '../../components/viz/Softmax';
 
 > כל מה שאתם מכירים מ-LLM, ChatGPT, Claude, Gemini, Llama, מסתמך על רעיון אחד שפורסם ב-2017. הרעיון הזה כל כך פשוט שאחרי שתבינו אותו, תשאלו את עצמכם איך אף אחד לא חשב עליו קודם.
 
@@ -72,14 +74,7 @@ $$a \cdot b = \sum_i a_i b_i$$
 - אם הם ניצבים, התוצאה **אפס**
 - אם הם מנוגדים, התוצאה **שלילית**
 
-<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
-  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
-    Demo placeholder
-  </figcaption>
-  <p className="mt-3 italic text-[var(--color-muted)]">
-    Visualization 1: dot product. Two vectors you can rotate, with the dot product updating in real time. (Component not built yet.)
-  </p>
-</figure>
+<DotProduct client:visible />
 
 אז אולי הפתרון הוא פשוט: $\alpha_{i,j} = x_i \cdot x_j$? כלומר, "כמה המילה דומה לי, היא תקבל יותר משקל"?
 
@@ -141,14 +136,7 @@ $$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_k e^{z_k}}$$
 1. **מעריך:** $e^{z_i}$ הופך כל מספר לחיובי (וגם מגדיל הבדלים)
 2. **נירמול:** מחלקים בסכום כך שהכל יסתכם ל-1
 
-<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
-  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
-    Demo placeholder
-  </figcaption>
-  <p className="mt-3 italic text-[var(--color-muted)]">
-    Visualization 2: softmax demo. Sliders for 3-5 input values, with the resulting probabilities shown in real time. (Component not built yet.)
-  </p>
-</figure>
+<Softmax client:visible />
 
 אז המשקל הסופי שלנו:
 
@@ -170,14 +158,7 @@ $$\frac{Q K^T}{\sqrt{d_k}}$$
 
 ולמה זה רע? כי softmax היא רגישה מאוד לגודל הקלט. אם תכניסו ל-softmax את `[1, 2, 3]` תקבלו פיזור יחסית רך. אבל אם תכניסו `[10, 20, 30]`, כמעט כל המסה תהיה על האיבר השלישי.
 
-<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
-  <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
-    Demo placeholder
-  </figcaption>
-  <p className="mt-3 italic text-[var(--color-muted)]">
-    Visualization 3: the effect of scale on softmax. Same as #2, plus a slider that multiplies all the scores. You can watch softmax sharpen as the scaling factor grows. (Component not built yet.)
-  </p>
-</figure>
+<Softmax client:visible showScaleControl title="Softmax with scale" />
 
 החלוקה ב-$\sqrt{d_k}$ מנרמלת את הציונים חזרה לקנה מידה הגיוני. זה שומר על softmax "רכה" מספיק כדי שגרדיאנטים יזרמו באימון.
 
