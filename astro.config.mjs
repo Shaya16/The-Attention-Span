@@ -7,8 +7,11 @@ import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
+import cloudflare from "@astrojs/cloudflare";
+
 export default defineConfig({
   site: 'https://the-attention-span.pages.dev',
+
   integrations: [
     mdx({
       remarkPlugins: [remarkMath],
@@ -17,6 +20,7 @@ export default defineConfig({
     react(),
     sitemap(),
   ],
+
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
@@ -25,7 +29,10 @@ export default defineConfig({
       wrap: true,
     },
   },
+
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare()
 });
