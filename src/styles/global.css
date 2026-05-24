@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@theme {
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-ink: oklch(0.18 0.02 270);
+  --color-paper: oklch(0.99 0.005 90);
+  --color-muted: oklch(0.55 0.02 270);
+  --color-line: oklch(0.92 0.01 270);
+  --color-accent: oklch(0.62 0.22 25);
+  --color-accent-2: oklch(0.72 0.18 200);
+  --color-accent-3: oklch(0.78 0.18 140);
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, color-mix(in oklch, var(--color-accent) 8%, transparent) 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, color-mix(in oklch, var(--color-accent-2) 8%, transparent) 0%, transparent 60%),
+      var(--color-paper);
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--color-accent) 25%, transparent);
+  }
+}
+
+@layer components {
+  .prose-post {
+    max-width: 68ch;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .prose-post h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose-post h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.875rem;
+    letter-spacing: -0.02em;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .prose-post h3 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose-post p {
+    margin-bottom: 1.25rem;
+  }
+
+  .prose-post a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: opacity 0.15s;
+  }
+
+  .prose-post a:hover {
+    opacity: 0.7;
+  }
+
+  .prose-post code:not(pre code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: color-mix(in oklch, var(--color-line) 60%, transparent);
+    padding: 0.1em 0.4em;
+    border-radius: 0.25rem;
+  }
+
+  .prose-post pre {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-line);
+  }
+
+  .prose-post blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--color-muted);
+  }
+
+  .prose-post ul, .prose-post ol {
+    margin: 1.25rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .prose-post li {
+    margin: 0.5rem 0;
+  }
+
+  .prose-post .katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .demo-frame {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    background: color-mix(in oklch, var(--color-paper) 95%, var(--color-accent-2) 5%);
+  }
+}

@@ -1,0 +1,44 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  readingTime?: string;
+}
+
+const { post, readingTime } = Astro.props;
+const { title, description, pubDate, tags } = post.data;
+
+const dateStr = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="prose-post">
+    <div class="mb-8 flex flex-wrap items-center gap-2 text-sm text-[var(--color-muted)]">
+      <time datetime={pubDate.toISOString()}>{dateStr}</time>
+      {readingTime && <><span>·</span><span>{readingTime}</span></>}
+      {tags.length > 0 && (
+        <>
+          <span>·</span>
+          <div class="flex gap-2">
+            {tags.map((tag) => (
+              <span class="rounded-full bg-[color-mix(in_oklch,var(--color-accent-2)_15%,transparent)] px-2 py-0.5 text-xs">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+    <h1>{title}</h1>
+    <p class="mb-12 text-xl text-[var(--color-muted)]" style="font-family: var(--font-display); font-style: italic;">
+      {description}
+    </p>
+    <slot />
+  </article>
+</BaseLayout>

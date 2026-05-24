@@ -1,0 +1,84 @@
+---
+title: "Three things you can put in a blog post"
+description: "A tour of the interactive components shipping with this site, with a bit of attention math thrown in."
+pubDate: 2026-05-24
+tags: ["meta", "interactive", "attention"]
+---
+
+import AttentionDemo from '../../components/viz/AttentionDemo';
+import GradientDescent from '../../components/viz/GradientDescent';
+import LossCurve from '../../components/viz/LossCurve';
+
+This post is a sampler. Each demo below is a real React component dropped
+into the markdown of this post. You write prose, you import a component,
+you put it where you want it. The reader plays with it in their browser.
+
+## 1. Attention, illustrated
+
+Self-attention is usually introduced with matrices and a softmax. That's
+fine, but the *intuition* is simpler: every token decides how much to
+listen to every other token. Hover the tokens below to see who attends
+to whom.
+
+<AttentionDemo client:load defaultSentence="the cat sat on the mat" />
+
+The actual math is just a softmax over scaled dot products of query and
+key vectors:
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+The weights above are toy weights, not from a real model — but the
+*structure* of the visualization is exactly how you'd display real
+attention. To swap in real weights, export them from your model and
+pass them as a prop.
+
+## 2. Gradient descent you can poke
+
+Reading about optimizers is one thing. Watching SGD bounce around while
+Adam glides to a minimum is another. Click anywhere on the loss surface
+to drop a starting point.
+
+<GradientDescent client:visible />
+
+The surface is Himmelblau's function — four local minima, so where you
+start matters. Try the same starting point with each optimizer. Try
+cranking the learning rate up.
+
+## 3. Charts that aren't dead
+
+Static loss curve screenshots are a missed opportunity. With ~30 lines
+of Recharts you get hover, zoom, and togglable series.
+
+<LossCurve client:load />
+
+Click the legend to hide or show series. Hover for exact values. The
+component takes a `data` prop, so any post can drop in its own training
+run by passing a JSON array.
+
+## How to use these
+
+Each component lives in `src/components/viz/`. To use one in a post:
+
+```mdx
+import LossCurve from '../../components/viz/LossCurve';
+
+<LossCurve client:load data={myData} />
+```
+
+The `client:load` directive tells Astro to ship the JavaScript for that
+component to the browser. Use `client:visible` for heavy demos that should
+wait until they scroll into view.
+
+## What's next
+
+This is a starting toolkit, not a finished one. Next demos to build:
+
+- A canvas you can draw on, with a tiny MNIST model classifying live
+- A 3D embedding-space explorer (react-three-fiber)
+- A backprop step-through for a 2-layer net
+- An interactive transformer block, where you can swap attention heads in and out
+
+Each one is a new file in `src/components/viz/` and an import in a post.
+That's the whole CMS.
