@@ -18,8 +18,8 @@ const dateStr = pubDate.toLocaleDateString('en-US', {
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="prose-post">
-    <div class="mb-8 flex flex-wrap items-center gap-2 text-sm text-[var(--color-muted)]">
+  <article class="prose-post" dir="rtl" lang="he">
+    <div class="mb-8 flex flex-wrap items-center gap-2 text-sm text-[var(--color-muted)]" dir="ltr">
       <time datetime={pubDate.toISOString()}>{dateStr}</time>
       {readingTime && <><span>·</span><span>{readingTime}</span></>}
       {tags.length > 0 && (
@@ -35,8 +35,8 @@ const dateStr = pubDate.toLocaleDateString('en-US', {
         </>
       )}
     </div>
-    <h1>{title}</h1>
-    <p class="mb-12 text-xl text-[var(--color-muted)]" style="font-family: var(--font-display); font-style: italic;">
+    <h1 dir="auto">{title}</h1>
+    <p class="mb-12 text-xl text-[var(--color-muted)]" style="font-family: var(--font-display); font-style: italic;" dir="auto">
       {description}
     </p>
     <slot />

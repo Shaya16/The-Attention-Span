@@ -24,20 +24,20 @@ const { title, description = 'Interactive explainers on machine learning and dee
     <title>{title}</title>
   </head>
   <body>
-    <div class="mx-auto max-w-3xl px-6 py-10">
-      <header class="mb-16 flex items-center justify-between">
+    <div class="mx-auto max-w-3xl px-5 py-6 sm:px-6 sm:py-10">
+      <header class="mb-10 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 sm:mb-16">
         <a href="/" class="group">
           <span
             class="text-[var(--color-ink)] transition group-hover:text-[var(--color-accent)]"
-            style="font-family: var(--font-display); font-style: italic; font-size: 1.5rem; line-height: 1; letter-spacing: -0.01em;"
+            style="font-family: var(--font-display); font-style: italic; line-height: 1; letter-spacing: -0.01em; font-size: clamp(1.125rem, 4.5vw, 1.5rem);"
           >
             The Attention Span
           </span>
         </a>
-        <nav class="flex items-center gap-6 text-sm text-[var(--color-muted)]">
+        <nav class="flex items-center gap-4 text-sm text-[var(--color-muted)] sm:gap-6">
           <a href="/" class="hover:text-[var(--color-ink)] transition">posts</a>
           <a href="/about" class="hover:text-[var(--color-ink)] transition">about</a>
-          <a href="/rss.xml" class="hover:text-[var(--color-ink)] transition">rss</a>
+          <a href="/rss.xml" class="hidden hover:text-[var(--color-ink)] transition sm:inline">rss</a>
           <a
             href="https://github.com/Shaya16"
             target="_blank"

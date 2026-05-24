@@ -64,7 +64,7 @@ export default function AttentionDemo({
   return (
     <DemoFrame
       title="Attention demo"
-      caption="Hover a token to see what it attends to. Edit the sentence to explore."
+      caption="Hover or tap a token to see what it attends to. Edit the sentence to explore."
     >
       <div className="space-y-4">
         <input
@@ -96,6 +96,7 @@ export default function AttentionDemo({
                   key={`${tok}-${i}`}
                   onMouseEnter={() => setHover(i)}
                   onMouseLeave={() => setHover(null)}
+                  onClick={() => setHover((curr) => (curr === i ? null : i))}
                   className="relative rounded-md border px-3 py-1.5 font-mono text-sm transition-all"
                   style={{
                     borderColor: isActive
@@ -125,7 +126,7 @@ export default function AttentionDemo({
 
         <div className="text-xs text-[var(--color-muted)]">
           {hover === null
-            ? 'Hover any token above.'
+            ? 'Hover or tap any token above.'
             : <>Token <span className="font-mono">"{tokens[hover]}"</span> attends most to <span className="font-mono">"{tokens[row.indexOf(Math.max(...row))]}"</span>.</>
           }
         </div>

@@ -7,8 +7,6 @@ tags: ["attention", "transformers", "LLM"]
 
 import AttentionDemo from '../../components/viz/AttentionDemo';
 
-<div dir="rtl" lang="he">
-
 > כל מה שאתם מכירים מ-LLM, ChatGPT, Claude, Gemini, Llama, מסתמך על רעיון אחד שפורסם ב-2017. הרעיון הזה כל כך פשוט שאחרי שתבינו אותו, תשאלו את עצמכם איך אף אחד לא חשב עליו קודם.
 
 ## תרגיל קטן לפני שמתחילים
@@ -74,9 +72,7 @@ $$a \cdot b = \sum_i a_i b_i$$
 - אם הם ניצבים, התוצאה **אפס**
 - אם הם מנוגדים, התוצאה **שלילית**
 
-</div>
-
-<figure className="demo-frame not-prose my-8 text-center">
+<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
   <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
     Demo placeholder
   </figcaption>
@@ -84,8 +80,6 @@ $$a \cdot b = \sum_i a_i b_i$$
     Visualization 1: dot product. Two vectors you can rotate, with the dot product updating in real time. (Component not built yet.)
   </p>
 </figure>
-
-<div dir="rtl" lang="he">
 
 אז אולי הפתרון הוא פשוט: $\alpha_{i,j} = x_i \cdot x_j$? כלומר, "כמה המילה דומה לי, היא תקבל יותר משקל"?
 
@@ -107,9 +101,9 @@ $$a \cdot b = \sum_i a_i b_i$$
 
 לכל מילה $i$ נחשב:
 
-$$Q_i = W_Q \cdot x_i \quad \text{(Query — מה אני מחפש?)}$$
-$$K_i = W_K \cdot x_i \quad \text{(Key — מה אני יכול להציע?)}$$
-$$V_i = W_V \cdot x_i \quad \text{(Value — מה המידע שלי?)}$$
+$$Q_i = W_Q \cdot x_i \quad \text{(Query)}$$
+$$K_i = W_K \cdot x_i \quad \text{(Key)}$$
+$$V_i = W_V \cdot x_i \quad \text{(Value)}$$
 
 כאשר $W_Q, W_K, W_V$ הן מטריצות נלמדות (אלו הפרמטרים שהמודל מאמן).
 
@@ -147,9 +141,7 @@ $$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_k e^{z_k}}$$
 1. **מעריך:** $e^{z_i}$ הופך כל מספר לחיובי (וגם מגדיל הבדלים)
 2. **נירמול:** מחלקים בסכום כך שהכל יסתכם ל-1
 
-</div>
-
-<figure className="demo-frame not-prose my-8 text-center">
+<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
   <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
     Demo placeholder
   </figcaption>
@@ -157,8 +149,6 @@ $$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_k e^{z_k}}$$
     Visualization 2: softmax demo. Sliders for 3-5 input values, with the resulting probabilities shown in real time. (Component not built yet.)
   </p>
 </figure>
-
-<div dir="rtl" lang="he">
 
 אז המשקל הסופי שלנו:
 
@@ -180,9 +170,7 @@ $$\frac{Q K^T}{\sqrt{d_k}}$$
 
 ולמה זה רע? כי softmax היא רגישה מאוד לגודל הקלט. אם תכניסו ל-softmax את `[1, 2, 3]` תקבלו פיזור יחסית רך. אבל אם תכניסו `[10, 20, 30]`, כמעט כל המסה תהיה על האיבר השלישי.
 
-</div>
-
-<figure className="demo-frame not-prose my-8 text-center">
+<figure className="demo-frame not-prose my-8 text-center" dir="ltr">
   <figcaption className="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
     Demo placeholder
   </figcaption>
@@ -190,8 +178,6 @@ $$\frac{Q K^T}{\sqrt{d_k}}$$
     Visualization 3: the effect of scale on softmax. Same as #2, plus a slider that multiplies all the scores. You can watch softmax sharpen as the scaling factor grows. (Component not built yet.)
   </p>
 </figure>
-
-<div dir="rtl" lang="he">
 
 החלוקה ב-$\sqrt{d_k}$ מנרמלת את הציונים חזרה לקנה מידה הגיוני. זה שומר על softmax "רכה" מספיק כדי שגרדיאנטים יזרמו באימון.
 
@@ -216,11 +202,9 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right
 
 נחזור לדוגמה: "הקופסה לא נכנסה למזוודה כי היא הייתה גדולה מדי."
 
+<div dir="ltr">
+  <AttentionDemo client:visible defaultSentence="הקופסה לא נכנסה למזוודה כי היא הייתה גדולה מדי" />
 </div>
-
-<AttentionDemo client:visible defaultSentence="הקופסה לא נכנסה למזוודה כי היא הייתה גדולה מדי" />
-
-<div dir="rtl" lang="he">
 
 הערה: המשקלים בדמו למעלה מחושבים מהיוריסטיקה פשוטה (מרחק בין מילים + אותיות משותפות), לא ממודל אמיתי. הם נועדו רק להראות איך נראה visualization של attention. בפוסט הבא נחבר אותה למודל אמיתי.
 
@@ -283,5 +267,3 @@ class SelfAttention(torch.nn.Module):
 ---
 
 **אם הפוסט הזה עזר לכם, שתפו אותו עם מישהו שעדיין חושב ש-ChatGPT 'מבין' אותו.**
-
-</div>

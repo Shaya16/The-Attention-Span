@@ -51,7 +51,7 @@ export default function PostList({ posts }: Props) {
               >
                 {formatDate(post.pubDate)}
               </time>
-              <span className="flex-1">
+              <span className="flex-1" dir="auto">
                 <span className="font-medium transition group-hover:text-[var(--color-accent)]">
                   {post.title}
                 </span>

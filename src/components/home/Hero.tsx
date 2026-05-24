@@ -13,15 +13,15 @@ export default function Hero() {
         };
 
   return (
-    <section className="pt-24 pb-12">
+    <section className="pt-12 pb-8 sm:pt-24 sm:pb-12">
       <motion.h1
         {...fadeUp(0, 0.6)}
-        className="mb-6"
+        className="mb-4 sm:mb-6"
         style={{
           fontFamily: 'var(--font-display)',
           fontStyle: 'italic',
-          fontSize: 'clamp(3rem, 8vw, 6.5rem)',
-          lineHeight: 1,
+          fontSize: 'clamp(2.25rem, 9vw, 6.5rem)',
+          lineHeight: 1.02,
           letterSpacing: '-0.04em',
         }}
       >
@@ -30,7 +30,7 @@ export default function Hero() {
 
       <motion.p
         {...fadeUp(0.12, 0.4)}
-        className="max-w-md text-lg"
+        className="max-w-md text-base sm:text-lg"
         style={{ color: 'var(--color-muted)' }}
       >
         Machine learning, explained before your context window runs out.
