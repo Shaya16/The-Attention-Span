@@ -15,7 +15,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 ---
 
 <BaseLayout title="The Attention Span">
-  <Hero client:load />
+  <Hero client:load slot="hero" />
 
   <section class="mt-16">
     <h2 class="mb-6 text-sm font-medium uppercase tracking-widest text-[var(--color-muted)]">
