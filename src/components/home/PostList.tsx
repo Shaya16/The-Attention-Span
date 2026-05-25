@@ -1,10 +1,26 @@
-import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import FeaturedPostCard from './FeaturedPostCard';
+import PostListItem from './PostListItem';
 
-interface Post {
+export interface PostImage {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
+export interface Post {
   slug: string;
   title: string;
   description: string;
   pubDate: Date | string;
+  tags: string[];
+  image: PostImage | null;
+}
+
+export interface PostStat {
+  claps: number;
+  comments: number;
 }
 
 interface Props {
@@ -12,57 +28,45 @@ interface Props {
 }
 
 export default function PostList({ posts }: Props) {
-  const prefersReduced = useReducedMotion();
+  const [stats, setStats] = useState<Record<string, PostStat>>({});
 
-  const formatDate = (d: Date | string) => {
-    const date = d instanceof Date ? d : new Date(d);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: '2-digit',
-    });
-  };
+  useEffect(() => {
+    if (posts.length === 0) return;
+    let cancelled = false;
+    const slugs = posts.map((p) => p.slug).join(',');
+    fetch(`/api/stats?slugs=${encodeURIComponent(slugs)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { stats?: Record<string, PostStat> } | null) => {
+        if (cancelled || !data?.stats) return;
+        setStats(data.stats);
+      })
+      .catch(() => {
+        // Counts simply won't appear on previews — graceful degrade.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [posts]);
 
-  const isoDate = (d: Date | string) => {
-    const date = d instanceof Date ? d : new Date(d);
-    return date.toISOString();
-  };
+  if (posts.length === 0) return null;
+
+  const [featured, ...rest] = posts;
 
   return (
-    <ul className="space-y-1">
-      {posts.map((post, i) => {
-        const itemProps = prefersReduced
-          ? { initial: false as const, animate: { opacity: 1, y: 0 } }
-          : {
-              initial: { opacity: 0, y: 8 },
-              animate: { opacity: 1, y: 0 },
-              transition: { duration: 0.35, delay: i * 0.06, ease: 'easeOut' as const },
-            };
-
-        return (
-          <motion.li key={post.slug} {...itemProps}>
-            <a
-              href={`/posts/${post.slug}/`}
-              className="group flex items-baseline gap-4 border-b border-[var(--color-line)] py-5 transition hover:border-[var(--color-accent)]"
-            >
-              <time
-                dateTime={isoDate(post.pubDate)}
-                className="shrink-0 font-mono text-xs text-[var(--color-muted)]"
-              >
-                {formatDate(post.pubDate)}
-              </time>
-              <span className="flex-1" dir="auto">
-                <span className="font-medium transition group-hover:text-[var(--color-accent)]">
-                  {post.title}
-                </span>
-                <span className="ml-2 text-sm text-[var(--color-muted)]">
-                  {post.description}
-                </span>
-              </span>
-            </a>
-          </motion.li>
-        );
-      })}
-    </ul>
+    <div className="space-y-10">
+      <FeaturedPostCard post={featured} stat={stats[featured.slug]} />
+      {rest.length > 0 && (
+        <ul className="space-y-1">
+          {rest.map((post, i) => (
+            <PostListItem
+              key={post.slug}
+              post={post}
+              index={i}
+              stat={stats[post.slug]}
+            />
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

@@ -1,0 +1,34 @@
+---
+import CommentsModerator from '../../components/admin/CommentsModerator';
+---
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>תגובות · ניהול</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Heebo:wght@400;500;600;700&display=swap"
+    />
+    <style is:global>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #222;
+        font-family: 'Heebo', 'Inter', system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      * { box-sizing: border-box; }
+    </style>
+  </head>
+  <body>
+    <CommentsModerator client:only="react" />
+  </body>
+</html>

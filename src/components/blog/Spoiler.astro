@@ -1,0 +1,43 @@
+---
+interface Props {
+  summary?: string;
+}
+const { summary = 'הצג תשובה' } = Astro.props;
+---
+
+<details class="spoiler">
+  <summary class="spoiler-summary" dir="auto">{summary}</summary>
+  <div class="spoiler-body" dir="auto"><slot /></div>
+</details>
+
+<style>
+  .spoiler {
+    background: color-mix(in oklch, var(--color-line) 35%, transparent);
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 1.2em 0;
+  }
+  .spoiler-summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-accent);
+    list-style: none;
+    user-select: none;
+  }
+  .spoiler-summary::-webkit-details-marker { display: none; }
+  .spoiler-summary::before {
+    content: '▸';
+    display: inline-block;
+    margin-inline-end: 8px;
+    transition: transform 150ms ease;
+  }
+  .spoiler[open] .spoiler-summary::before { transform: rotate(90deg); }
+  .spoiler-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in oklch, var(--color-line) 60%, transparent);
+  }
+  .spoiler-body :global(p:first-child) { margin-block-start: 0; }
+  .spoiler-body :global(p:last-child) { margin-block-end: 0; }
+</style>

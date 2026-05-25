@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { contentEditor } from './vite-plugin-content-editor.mjs';
 
 export default defineConfig({
   site: 'https://the-attention-span.pages.dev',
@@ -26,6 +27,6 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), contentEditor()], // dev-only admin api + uploads
   },
 });

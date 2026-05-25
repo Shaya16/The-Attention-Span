@@ -1,0 +1,6 @@
+# Copy to .dev.vars for `wrangler pages dev`. Do NOT commit .dev.vars.
+ADMIN_PASSWORD=change-me-local
+SESSION_SECRET=any-random-string-at-least-32-chars-long
+# Cloudflare-provided always-pass Turnstile keys for local dev.
+# Frontend uses PUBLIC_TURNSTILE_SITE_KEY (see .env or astro env handling).
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

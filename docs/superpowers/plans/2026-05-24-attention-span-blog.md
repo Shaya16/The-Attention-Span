@@ -1,12 +1,12 @@
-# The Attention Span — Initial Blog Scaffold Implementation Plan
+# The Attention Span - Initial Blog Scaffold Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Get the personal ML blog running locally — extract the pre-built scaffold, wire in Shay's identity, add a Medium-style hero with `motion` entrance animations, and commit everything to a fresh local git repo. No GitHub push, no deploy.
+**Goal:** Get the personal ML blog running locally - extract the pre-built scaffold, wire in Shay's identity, add a Medium-style hero with `motion` entrance animations, and commit everything to a fresh local git repo. No GitHub push, no deploy.
 
 **Architecture:** Take `~/Downloads/blog-scaffold.zip` (Astro 5 + MDX + React 19 + Tailwind v4 + KaTeX + Recharts + 4 viz components + 2 sample posts) as the starting point. Add the `motion` package. Add two new React components (`Hero.tsx`, `PostList.tsx`) for the home page, both `client:`-hydrated with `motion` entrance animations that respect `prefers-reduced-motion`. Rewrite `index.astro` to use them. Identity-replace `"your name"` placeholders and add real GitHub + LinkedIn URLs. Add inline-SVG social icons to the persistent header. Rewrite the about page and README. Verify by running dev server, walking through every route in the browser, running a production build, then `git init` and commit.
 
-**Tech Stack:** Astro 5, MDX, React 19, Tailwind v4 (Vite plugin), KaTeX, Recharts, `motion`, TypeScript. Node.js + npm. Git. PowerShell (this is a Windows machine — use Bash tool for POSIX-y operations like `unzip`).
+**Tech Stack:** Astro 5, MDX, React 19, Tailwind v4 (Vite plugin), KaTeX, Recharts, `motion`, TypeScript. Node.js + npm. Git. PowerShell (this is a Windows machine - use Bash tool for POSIX-y operations like `unzip`).
 
 **Spec reference:** [docs/superpowers/specs/2026-05-24-attention-span-blog-design.md](../specs/2026-05-24-attention-span-blog-design.md)
 
@@ -93,7 +93,7 @@ cd "/c/Users/Shay Avivi/Desktop/Projects/The Attention Span" && \
 rm -rf "src/{components" 2>/dev/null; true
 ```
 
-Expected: no error (the `true` swallows non-existence). Verify with Glob `src/*` — only `components`, `content`, `layouts`, `pages`, `styles`, `content.config.ts` should be present, no literal `{` directories.
+Expected: no error (the `true` swallows non-existence). Verify with Glob `src/*` - only `components`, `content`, `layouts`, `pages`, `styles`, `content.config.ts` should be present, no literal `{` directories.
 
 - [ ] **Step 3: Install dependencies**
 
@@ -102,7 +102,7 @@ Run via PowerShell (npm is a Windows-installed tool):
 npm install
 ```
 
-Expected: completes with no errors. Creates `node_modules/` and `package-lock.json`. May print warnings about peer dependencies — those are fine. If `npm install` fails outright, stop and report the error.
+Expected: completes with no errors. Creates `node_modules/` and `package-lock.json`. May print warnings about peer dependencies - those are fine. If `npm install` fails outright, stop and report the error.
 
 - [ ] **Step 4: Verify the unmodified scaffold builds and serves**
 
@@ -111,7 +111,7 @@ Start the dev server in background:
 npm run dev
 ```
 
-Wait ~3 seconds for Astro to print the local URL (typically `http://localhost:4321/`). Then verify by reading the server's stdout — it should print "ready in Xms" with no errors.
+Wait ~3 seconds for Astro to print the local URL (typically `http://localhost:4321/`). Then verify by reading the server's stdout - it should print "ready in Xms" with no errors.
 
 If using Bash tool with `run_in_background`, follow up with a check that the server is listening:
 ```bash
@@ -121,7 +121,7 @@ Expected: `HTTP/1.1 200 OK` (or similar 2xx status).
 
 Stop the dev server before continuing (kill the background process).
 
-If the server failed to start, stop and report the error — do not proceed.
+If the server failed to start, stop and report the error - do not proceed.
 
 - [ ] **Step 5: Initialize git and make the first commit**
 
@@ -193,11 +193,11 @@ git commit -m "chore: add motion and rename package to the-attention-span"
 
 ---
 
-## Task 3: Identity pass — astro.config, BaseLayout brand, about page
+## Task 3: Identity pass - astro.config, BaseLayout brand, about page
 
 **Files:**
 - Modify: `astro.config.mjs` (site URL)
-- Modify: `src/layouts/BaseLayout.astro` (brand text only — icons added in Task 4)
+- Modify: `src/layouts/BaseLayout.astro` (brand text only - icons added in Task 4)
 - Modify: `src/pages/about.astro` (full rewrite per spec)
 
 - [ ] **Step 1: Update site URL in astro.config.mjs**
@@ -228,7 +228,7 @@ New:
           <span class="font-medium tracking-tight">Shay</span>
 ```
 
-(Note: this is the only `"your name"` reference in BaseLayout — the page title comes from the `title` prop set by each page.)
+(Note: this is the only `"your name"` reference in BaseLayout - the page title comes from the `title` prop set by each page.)
 
 - [ ] **Step 3: Rewrite about.astro**
 
@@ -341,7 +341,7 @@ New:
         </nav>
 ```
 
-The icon `gap-6` is intentionally the same as the rest of the nav — the icons sit naturally in the row.
+The icon `gap-6` is intentionally the same as the rest of the nav - the icons sit naturally in the row.
 
 - [ ] **Step 2: Verify in the browser**
 
@@ -468,9 +468,9 @@ Run via PowerShell:
 npx astro check
 ```
 
-Expected: 0 errors. May print warnings about unused files (the new Hero.tsx isn't imported anywhere yet) — those are OK. If there's an error specifically in `Hero.tsx`, fix it before continuing. If `astro check` is slow on cold start, that's fine, wait it out.
+Expected: 0 errors. May print warnings about unused files (the new Hero.tsx isn't imported anywhere yet) - those are OK. If there's an error specifically in `Hero.tsx`, fix it before continuing. If `astro check` is slow on cold start, that's fine, wait it out.
 
-If you get an error like `Cannot find module 'motion/react'`, the install in Task 2 was wrong — go back and verify the `motion` package is in `dependencies`.
+If you get an error like `Cannot find module 'motion/react'`, the install in Task 2 was wrong - go back and verify the `motion` package is in `dependencies`.
 
 - [ ] **Step 3: Commit**
 
@@ -640,7 +640,7 @@ Check that home page returns 200 and references the Hero content:
 curl -s http://localhost:4321/ | grep -E "(The .* Attention.* Span|Machine learning, explained)" | head -3
 ```
 
-Expected: at least one matching line containing the tagline ("Machine learning, explained..."). The title text may be split across multiple lines due to the `<span>` so might not appear as a single grep match — that's fine.
+Expected: at least one matching line containing the tagline ("Machine learning, explained..."). The title text may be split across multiple lines due to the `<span>` so might not appear as a single grep match - that's fine.
 
 Also check Hero animations are wired (the page should include `motion`-generated styles):
 ```bash
@@ -755,7 +755,7 @@ git commit -m "docs: rewrite README for The Attention Span project"
 
 ## Task 9: Final end-to-end verification
 
-This task does no editing — only verification. If anything fails, stop and report rather than papering over.
+This task does no editing - only verification. If anything fails, stop and report rather than papering over.
 
 **Files:** none modified.
 
@@ -770,7 +770,7 @@ cd "/c/Users/Shay Avivi/Desktop/Projects/The Attention Span"
 npm run build
 ```
 
-Expected: clean build with no errors. Note any warnings — they're acceptable unless they reference broken behavior.
+Expected: clean build with no errors. Note any warnings - they're acceptable unless they reference broken behavior.
 
 - [ ] **Step 2: Verify build output**
 
@@ -787,7 +787,7 @@ Also Glob `dist/**/*.xml` and confirm:
 - [ ] **Step 3: Inspect rendered home page from the build output**
 
 Read `dist/index.html` (use Read tool, limit ~100 lines). Confirm it contains:
-- The string `The` (followed somewhere by `Attention` and `Span` — they may be split across spans)
+- The string `The` (followed somewhere by `Attention` and `Span` - they may be split across spans)
 - The tagline `Machine learning, explained before your context window runs out.`
 - A `<link rel="stylesheet"` for Google Fonts (Geist + Instrument Serif)
 - A reference to the Astro-bundled JS for the Hero island
@@ -825,9 +825,9 @@ Now open `http://localhost:4321/` in a browser **manually** and verify:
 
 4. **About page `/about/`**:
    - "I'm Shay" is present
-   - LinkedIn and GitHub links go to the real URLs (verify by hovering — browser shows the URL in the status bar)
+   - LinkedIn and GitHub links go to the real URLs (verify by hovering - browser shows the URL in the status bar)
 
-5. **Header icons**: on every page, click each social icon — both open correct profiles in new tab.
+5. **Header icons**: on every page, click each social icon - both open correct profiles in new tab.
 
 If anything is wrong, stop the server, fix the issue, recommit, and re-run verification. **Do NOT claim the work done unless all five sections above pass.**
 
@@ -838,7 +838,7 @@ Stop the dev server.
 ```bash
 git status
 ```
-Expected: `nothing to commit, working tree clean`. (If `dist/` shows up, the `.gitignore` doesn't cover it — add `dist/` to `.gitignore` and commit that.)
+Expected: `nothing to commit, working tree clean`. (If `dist/` shows up, the `.gitignore` doesn't cover it - add `dist/` to `.gitignore` and commit that.)
 
 ```bash
 git log --oneline
@@ -856,7 +856,7 @@ In the final response to the user, include:
 
 ## Self-review notes
 
-This plan was checked against the spec — every spec requirement maps to a task:
+This plan was checked against the spec - every spec requirement maps to a task:
 
 | Spec section | Task(s) |
 |---|---|

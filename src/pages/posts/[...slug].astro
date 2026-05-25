@@ -14,7 +14,8 @@ const { post } = Astro.props;
 const { Content, remarkPluginFrontmatter } = await render(post);
 
 const words = post.body?.split(/\s+/).length ?? 0;
-const readingTime = `${Math.max(1, Math.round(words / 220))} min read`;
+const minutes = Math.max(1, Math.round(words / 220));
+const readingTime = `${minutes} דקות קריאה`;
 ---
 
 <PostLayout post={post} readingTime={readingTime}>

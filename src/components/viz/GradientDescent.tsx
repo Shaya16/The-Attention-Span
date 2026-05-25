@@ -9,7 +9,7 @@ import DemoFrame from './DemoFrame';
  * Momentum, and Adam. Adjust learning rate.
  *
  * Loss function: f(x,y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2 (scaled)
- * — Himmelblau's, which has multiple minima, useful for showing how
+ * - Himmelblau's, which has multiple minima, useful for showing how
  * starting point matters.
  */
 
@@ -153,7 +153,7 @@ export default function GradientDescent() {
   return (
     <DemoFrame
       title="Gradient descent"
-      caption="Click anywhere on the surface to drop a starting point. Multiple minima — starting point matters."
+      caption="Click anywhere on the surface to drop a starting point. Multiple minima - starting point matters."
     >
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3 text-sm">

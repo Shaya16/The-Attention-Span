@@ -17,19 +17,21 @@ const { title, description = 'Interactive explainers on machine learning and dee
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
     />
     <title>{title}</title>
   </head>
   <body>
     <header class="border-b border-[var(--color-line)]">
-      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-5 gap-y-3 px-5 py-4 sm:px-8 sm:py-5">
-        <a href="/" class="logo block" aria-label="The Attention Span — home">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-5 gap-y-3 px-5 py-2.5 sm:px-8 sm:py-3">
+        <a href="/" class="logo block" aria-label="The Attention Span - home">
           <svg
-            width="44"
-            height="44"
+            width="34"
+            height="34"
             viewBox="0 0 60 60"
             aria-hidden="true"
             class="block"
@@ -92,7 +94,7 @@ const { title, description = 'Interactive explainers on machine learning and dee
 
     <slot name="hero" />
 
-    <div class="mx-auto max-w-3xl px-5 py-8 sm:px-6 sm:py-12">
+    <div class="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-12">
       <main>
         <slot />
       </main>
@@ -100,7 +102,7 @@ const { title, description = 'Interactive explainers on machine learning and dee
       <footer class="mt-24 border-t border-[var(--color-line)] pt-8 text-sm text-[var(--color-muted)]">
         <div class="flex items-center justify-between">
           <span>© {new Date().getFullYear()}</span>
-          <span>Built with Astro</span>
+
         </div>
       </footer>
     </div>

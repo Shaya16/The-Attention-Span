@@ -6,43 +6,31 @@ export const TOKENS = [
   'your',
   'context',
   'window',
-  'runs',
-  'out.',
+  'runs out.',
 ] as const;
 
-export type TokenIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type TokenIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-/**
- * Per-token alternates shown during the flicker. The LAST entry in each array
- * is the word that lands in the final sentence — keep it in sync with TOKENS.
- */
 export const CANDIDATES: Record<number, readonly string[]> = {
-  0: ['Statistical', 'Deep', 'Machine'],
-  1: ['thinking,', 'training,', 'learning,'],
-  2: ['translated', 'decoded', 'explained'],
-  3: ['until', 'after', 'before'],
+  0: ['Deep', 'Transfer', 'Machine'],
+  1: ['models,', 'systems,', 'learning,'],
+  2: ['decoded', 'visualized', 'explained'],
+  3: ['until', 'while', 'before'],
   4: ['the', 'my', 'your'],
-  5: ['memory', 'attention', 'context'],
-  6: ['buffer', 'span', 'window'],
-  7: ['gives', 'gets', 'runs'],
-  8: ['dry.', 'low.', 'out.'],
+  5: ['attention', 'memory', 'context'],
+  6: ['span', 'limit', 'window'],
+  7: ['fades.', 'expires.', 'runs out.'],
 };
 
-/**
- * For each token index i, the list of previous-token indices it "attends to"
- * with a weight in [0,1]. Aesthetic, not derived from a real model.
- */
 export const ATTENTION_PAIRS: Record<number, ReadonlyArray<{ target: number; weight: number }>> = {
-  0: [],
-  1: [{ target: 0, weight: 0.9 }],
-  2: [{ target: 0, weight: 0.5 }, { target: 1, weight: 0.7 }],
-  3: [{ target: 2, weight: 0.6 }],
-  4: [{ target: 3, weight: 0.4 }],
-  5: [{ target: 0, weight: 0.6 }, { target: 4, weight: 0.5 }],
-  6: [{ target: 5, weight: 0.9 }],
-  7: [{ target: 6, weight: 0.7 }, { target: 5, weight: 0.4 }],
-  8: [{ target: 7, weight: 0.8 }, { target: 6, weight: 0.5 }],
+  0: [{ target: 0, weight: 1.0 }],
+  1: [{ target: 0, weight: 0.72 }, { target: 1, weight: 0.28 }],
+  2: [{ target: 1, weight: 0.45 }, { target: 0, weight: 0.35 }, { target: 2, weight: 0.20 }],
+  3: [{ target: 2, weight: 0.42 }, { target: 0, weight: 0.30 }, { target: 3, weight: 0.18 }, { target: 1, weight: 0.10 }],
+  4: [{ target: 4, weight: 0.35 }, { target: 0, weight: 0.25 }, { target: 2, weight: 0.22 }, { target: 3, weight: 0.18 }],
+  5: [{ target: 4, weight: 0.48 }, { target: 5, weight: 0.22 }, { target: 0, weight: 0.18 }, { target: 1, weight: 0.12 }],
+  6: [{ target: 5, weight: 0.52 }, { target: 4, weight: 0.22 }, { target: 6, weight: 0.16 }, { target: 0, weight: 0.10 }],
+  7: [{ target: 6, weight: 0.38 }, { target: 5, weight: 0.28 }, { target: 3, weight: 0.15 }, { target: 7, weight: 0.12 }, { target: 0, weight: 0.07 }],
 };
 
-/** Token indices that render in var(--color-accent) instead of inherit. */
-export const ACCENT_INDICES: readonly number[] = [5]; // 'context'
+export const ACCENT_INDICES: readonly number[] = [];

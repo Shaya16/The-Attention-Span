@@ -1,0 +1,58 @@
+---
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<span class="term">
+  <span class="term-trigger">{name}</span>
+  <span class="term-tooltip" role="tooltip" dir="auto"><slot /></span>
+</span>
+
+<style>
+  .term {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+  }
+  .term-trigger {
+    border-bottom: 1px dotted var(--color-accent);
+    color: var(--color-accent);
+  }
+  .term-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    min-width: 180px;
+    max-width: 320px;
+    padding: 10px 14px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-radius: 6px;
+    font-size: 0.85em;
+    line-height: 1.45;
+    font-weight: 400;
+    white-space: normal;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+  .term-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-ink);
+  }
+  .term:hover .term-tooltip,
+  .term:focus-within .term-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>

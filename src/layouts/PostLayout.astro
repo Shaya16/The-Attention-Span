@@ -1,6 +1,8 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import EngagementBar from '../components/blog/EngagementBar';
 
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -8,9 +10,10 @@ interface Props {
 }
 
 const { post, readingTime } = Astro.props;
-const { title, description, pubDate, tags } = post.data;
+const { title, description, pubDate, tags, image } = post.data;
+const slug = post.id;
 
-const dateStr = pubDate.toLocaleDateString('en-US', {
+const dateStr = pubDate.toLocaleDateString('he-IL', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -18,27 +21,51 @@ const dateStr = pubDate.toLocaleDateString('en-US', {
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="prose-post" dir="rtl" lang="he">
-    <div class="mb-8 flex flex-wrap items-center gap-2 text-sm text-[var(--color-muted)]" dir="ltr">
-      <time datetime={pubDate.toISOString()}>{dateStr}</time>
-      {readingTime && <><span>·</span><span>{readingTime}</span></>}
-      {tags.length > 0 && (
-        <>
-          <span>·</span>
-          <div class="flex gap-2">
-            {tags.map((tag) => (
-              <span class="rounded-full bg-[color-mix(in_oklch,var(--color-accent-2)_15%,transparent)] px-2 py-0.5 text-xs">
-                {tag}
-              </span>
-            ))}
-          </div>
-        </>
+  <div class="pb-24 sm:pb-20">
+    <article class="prose-post" dir="rtl" lang="he">
+      <h1 dir="auto">{title}</h1>
+      <p class="post-subtitle !mb-4" dir="auto">{description}</p>
+
+      <div class="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--color-muted)]">
+        {readingTime && <span>{readingTime}</span>}
+        {readingTime && <span aria-hidden="true">·</span>}
+        <time datetime={pubDate.toISOString()}>{dateStr}</time>
+        {tags.length > 0 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <ul class="flex flex-wrap gap-1.5" dir="ltr">
+              {tags.map((tag) => (
+                <li class="rounded-full bg-[color-mix(in_oklch,var(--color-accent-2)_15%,transparent)] px-2 py-0.5 text-xs">
+                  #{tag}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+
+      <div class="mb-10 flex items-center gap-3">
+        <div
+          aria-hidden="true"
+          class="flex h-10 w-10 items-center justify-center rounded-full text-base font-semibold text-[var(--color-paper)]"
+          style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));"
+        >
+          ש
+        </div>
+        <span class="text-sm font-medium text-[var(--color-ink)]">שי אביבי</span>
+      </div>
+
+      {image ? (
+        <figure class="post-cover">
+          <Image src={image.src} alt={image.alt} />
+        </figure>
+      ) : (
+        <div class="post-cover post-cover--placeholder" aria-hidden="true"></div>
       )}
-    </div>
-    <h1 dir="auto">{title}</h1>
-    <p class="mb-12 text-xl text-[var(--color-muted)]" style="font-family: var(--font-display); font-style: italic;" dir="auto">
-      {description}
-    </p>
-    <slot />
-  </article>
+
+      <slot />
+    </article>
+  </div>
+
+  <EngagementBar client:load slug={slug} />
 </BaseLayout>

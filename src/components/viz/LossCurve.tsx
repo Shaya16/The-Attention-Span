@@ -15,7 +15,7 @@ import DemoFrame from './DemoFrame';
  * LossCurve
  *
  * Hoverable, togglable loss curve. Accepts arbitrary series.
- * Default demo data is a fake training run — replace with your own.
+ * Default demo data is a fake training run - replace with your own.
  */
 
 interface Series {

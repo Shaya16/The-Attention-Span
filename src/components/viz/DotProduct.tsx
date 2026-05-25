@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DemoFrame from './DemoFrame';
 
 interface Vec {
@@ -14,40 +14,101 @@ const MAX_UNIT = 1.45;
 function vecToScreen(v: Vec) {
   return { x: CENTER + v.x * SCALE, y: CENTER - v.y * SCALE };
 }
-
 function screenToVec(x: number, y: number): Vec {
   return { x: (x - CENTER) / SCALE, y: -(y - CENTER) / SCALE };
 }
-
 function dot(a: Vec, b: Vec) {
   return a.x * b.x + a.y * b.y;
 }
-
 function mag(v: Vec) {
   return Math.sqrt(v.x * v.x + v.y * v.y);
 }
-
 function angleDeg(a: Vec, b: Vec) {
   const m = mag(a) * mag(b);
   if (m < 1e-9) return 0;
   const cos = Math.max(-1, Math.min(1, dot(a, b) / m));
   return (Math.acos(cos) * 180) / Math.PI;
 }
-
+function perp(v: Vec): Vec {
+  return { x: -v.y, y: v.x };
+}
+function neg(v: Vec): Vec {
+  return { x: -v.x, y: -v.y };
+}
+function rotate(v: Vec, theta: number): Vec {
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return { x: c * v.x - s * v.y, y: s * v.x + c * v.y };
+}
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v));
 }
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+const A_INITIAL: Vec = { x: 1.0, y: 0.5 };
+
+const PRESETS = [
+  { label: 'אותו כיוון', compute: (a: Vec) => ({ ...a }) },
+  { label: 'ניצב', compute: (a: Vec) => perp(a) },
+  { label: 'כיוון הפוך', compute: (a: Vec) => neg(a) },
+  { label: 'באמצע', compute: (a: Vec) => rotate(a, Math.PI / 4) },
+];
 
 export default function DotProduct() {
-  const [a, setA] = useState<Vec>({ x: 1.2, y: 0.4 });
-  const [b, setB] = useState<Vec>({ x: 0.6, y: 1.0 });
+  const [a, setA] = useState<Vec>(A_INITIAL);
+  const [b, setB] = useState<Vec>(A_INITIAL);
+  const [freeMode, setFreeMode] = useState(false);
+  const [activePreset, setActivePreset] = useState<number | null>(0);
   const [dragging, setDragging] = useState<'a' | 'b' | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number | null>(null);
+  const bRef = useRef<Vec>(A_INITIAL);
+
+  useEffect(() => {
+    bRef.current = b;
+  }, [b]);
+
+  useEffect(() => {
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, []);
+
+  function animateBTo(target: Vec) {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    const start = { ...bRef.current };
+    const startTime = performance.now();
+    const duration = 300;
+
+    function step(now: number) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = easeOutCubic(t);
+      const next = {
+        x: start.x + (target.x - start.x) * eased,
+        y: start.y + (target.y - start.y) * eased,
+      };
+      bRef.current = next;
+      setB(next);
+      if (t < 1) animRef.current = requestAnimationFrame(step);
+      else animRef.current = null;
+    }
+    animRef.current = requestAnimationFrame(step);
+  }
+
+  function selectPreset(i: number) {
+    setActivePreset(i);
+    animateBTo(PRESETS[i].compute(a));
+  }
 
   const startDrag = (which: 'a' | 'b') => (e: React.PointerEvent) => {
+    if (!freeMode) return;
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     setDragging(which);
+    setActivePreset(null);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
   };
 
   const onMove = (e: React.PointerEvent) => {
@@ -61,7 +122,10 @@ export default function DotProduct() {
       y: clamp(v.y, -MAX_UNIT, MAX_UNIT),
     };
     if (dragging === 'a') setA(clamped);
-    else setB(clamped);
+    else {
+      bRef.current = clamped;
+      setB(clamped);
+    }
   };
 
   const endDrag = () => setDragging(null);
@@ -70,21 +134,21 @@ export default function DotProduct() {
   const bScreen = vecToScreen(b);
   const dp = dot(a, b);
   const ang = angleDeg(a, b);
-  const dpSign = dp > 0.01 ? 'positive' : dp < -0.01 ? 'negative' : 'zero';
   const dpColor =
-    dpSign === 'positive'
+    dp > 0.01
       ? 'var(--color-accent-3)'
-      : dpSign === 'negative'
+      : dp < -0.01
         ? 'var(--color-accent)'
         : 'var(--color-muted)';
 
   return (
     <DemoFrame
-      title="Dot product"
-      caption="Drag the colored handles. Same direction → positive. Perpendicular → zero. Opposite → negative."
+      title="מכפלה סקלרית"
+      caption="לחצו על כפתור. אותו כיוון = חיובי. ניצב = אפס. הפוך = שלילי."
     >
-      <div className="space-y-3" dir="ltr">
-        <div className="rounded-lg bg-white p-2 sm:p-3">
+      <div className="space-y-4">
+        {/* SVG plot */}
+        <div className="rounded-lg bg-white p-2 sm:p-3" dir="ltr">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${SIZE} ${SIZE}`}
@@ -94,6 +158,7 @@ export default function DotProduct() {
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
           >
+            {/* grid */}
             <g stroke="var(--color-line)" strokeWidth="0.5">
               {[-1, 1].map((g) => (
                 <line
@@ -114,13 +179,14 @@ export default function DotProduct() {
                 />
               ))}
             </g>
-
+            {/* axes */}
             <line
               x1={0}
               y1={CENTER}
               x2={SIZE}
               y2={CENTER}
               stroke="var(--color-muted)"
+              strokeOpacity="0.4"
               strokeWidth="1"
             />
             <line
@@ -129,6 +195,7 @@ export default function DotProduct() {
               x2={CENTER}
               y2={SIZE}
               stroke="var(--color-muted)"
+              strokeOpacity="0.4"
               strokeWidth="1"
             />
 
@@ -157,6 +224,7 @@ export default function DotProduct() {
               </marker>
             </defs>
 
+            {/* vector a */}
             <line
               x1={CENTER}
               y1={CENTER}
@@ -166,6 +234,7 @@ export default function DotProduct() {
               strokeWidth="2.5"
               markerEnd="url(#dp-arrow-a)"
             />
+            {/* vector b */}
             <line
               x1={CENTER}
               y1={CENTER}
@@ -176,45 +245,55 @@ export default function DotProduct() {
               markerEnd="url(#dp-arrow-b)"
             />
 
-            <g style={{ cursor: dragging === 'a' ? 'grabbing' : 'grab' }} onPointerDown={startDrag('a')}>
+            {/* a label / handle */}
+            <g
+              style={freeMode ? { cursor: dragging === 'a' ? 'grabbing' : 'grab' } : undefined}
+              onPointerDown={startDrag('a')}
+            >
               <circle
                 cx={aScreen.x}
                 cy={aScreen.y}
-                r="16"
+                r={freeMode ? 18 : 11}
                 fill="var(--color-accent-2)"
-                fillOpacity="0.18"
+                fillOpacity={freeMode ? 0.2 : 1}
                 stroke="var(--color-accent-2)"
-                strokeWidth="2"
+                strokeWidth={freeMode ? 2 : 0}
               />
               <text
                 x={aScreen.x}
-                y={aScreen.y + 4}
+                y={aScreen.y + 5}
                 textAnchor="middle"
-                fontSize="12"
+                fontSize="14"
                 fontFamily="monospace"
-                fill="var(--color-accent-2)"
+                fontWeight="bold"
+                fill={freeMode ? 'var(--color-accent-2)' : 'white'}
                 style={{ pointerEvents: 'none' }}
               >
                 a
               </text>
             </g>
-            <g style={{ cursor: dragging === 'b' ? 'grabbing' : 'grab' }} onPointerDown={startDrag('b')}>
+            {/* b label / handle */}
+            <g
+              style={freeMode ? { cursor: dragging === 'b' ? 'grabbing' : 'grab' } : undefined}
+              onPointerDown={startDrag('b')}
+            >
               <circle
                 cx={bScreen.x}
                 cy={bScreen.y}
-                r="16"
+                r={freeMode ? 18 : 11}
                 fill="var(--color-accent-3)"
-                fillOpacity="0.18"
+                fillOpacity={freeMode ? 0.2 : 1}
                 stroke="var(--color-accent-3)"
-                strokeWidth="2"
+                strokeWidth={freeMode ? 2 : 0}
               />
               <text
                 x={bScreen.x}
-                y={bScreen.y + 4}
+                y={bScreen.y + 5}
                 textAnchor="middle"
-                fontSize="12"
+                fontSize="14"
                 fontFamily="monospace"
-                fill="var(--color-accent-3)"
+                fontWeight="bold"
+                fill={freeMode ? 'var(--color-accent-3)' : 'white'}
                 style={{ pointerEvents: 'none' }}
               >
                 b
@@ -223,7 +302,50 @@ export default function DotProduct() {
           </svg>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        {/* Preset buttons */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" dir="rtl">
+          {PRESETS.map((p, i) => {
+            const active = activePreset === i && !freeMode;
+            return (
+              <button
+                key={p.label}
+                onClick={() => selectPreset(i)}
+                className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-[var(--color-ink)] text-white'
+                    : 'border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:border-[var(--color-accent)]'
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Free mode toggle */}
+        <div
+          className="flex items-center justify-between rounded-md border border-[var(--color-line)] bg-white px-3 py-2"
+          dir="rtl"
+        >
+          <span className="text-sm text-[var(--color-ink)]">טווח חופשי (גרירה)</span>
+          <button
+            role="switch"
+            aria-checked={freeMode}
+            aria-label="טווח חופשי"
+            onClick={() => setFreeMode((v) => !v)}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+              freeMode ? 'bg-[var(--color-accent-2)]' : 'bg-[var(--color-line)]'
+            }`}
+          >
+            <span
+              className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform"
+              style={{ transform: freeMode ? 'translateX(20px)' : 'translateX(0)' }}
+            />
+          </button>
+        </div>
+
+        {/* Numeric panels */}
+        <div className="grid grid-cols-2 gap-3 text-sm" dir="ltr">
           <div className="rounded-md border border-[var(--color-line)] bg-white p-3 text-center">
             <div className="text-xs uppercase tracking-wide text-[var(--color-muted)]">
               a · b
@@ -236,12 +358,13 @@ export default function DotProduct() {
             </div>
           </div>
           <div className="rounded-md border border-[var(--color-line)] bg-white p-3 text-center">
-            <div className="text-xs uppercase tracking-wide text-[var(--color-muted)]">
-              angle
+            <div
+              className="text-xs uppercase tracking-wide text-[var(--color-muted)]"
+              dir="rtl"
+            >
+              זווית
             </div>
-            <div className="mt-1 font-mono text-xl tabular-nums">
-              {ang.toFixed(0)}°
-            </div>
+            <div className="mt-1 font-mono text-xl tabular-nums">{ang.toFixed(0)}°</div>
           </div>
         </div>
       </div>

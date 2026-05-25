@@ -1,0 +1,736 @@
+---
+import AdminApp from '../components/admin/AdminApp';
+const isDev = import.meta.env.DEV;
+---
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Editor - The Attention Span</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Heebo:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+    <style is:global>
+      :root {
+        color-scheme: light;
+        /* Notion-inspired light palette */
+        --bg:           #ffffff;
+        --bg-soft:      #fbfbfa;
+        --bg-muted:     #f3f3f1;
+        --bg-hover:     #efefed;
+        --bg-selected:  #e8f0fc;
+        --border:       #ebebe9;
+        --border-soft:  #f0f0ee;
+        --ink:          #37352f;
+        --ink-soft:     #565551;
+        --muted:        #91918d;
+        --muted-soft:   #b7b7b3;
+        --accent:       #2383e2;
+        --accent-soft:  #d9ebfa;
+        --ok:           #0f9d58;
+        --warn:         #d4783a;
+        --danger:       #e03e3e;
+
+        /* Callout tints */
+        --callout-info-bg:    #e7f3f9;
+        --callout-info-bd:    #4a9ad4;
+        --callout-warn-bg:    #faecdc;
+        --callout-warn-bd:    #e0a14e;
+        --callout-note-bg:    #ede9f4;
+        --callout-note-bd:    #8b7bb8;
+        --callout-tip-bg:     #e6f3ec;
+        --callout-tip-bd:     #4ea672;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        height: 100%; margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'Inter', 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        font-size: 14px; line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      :is(:lang(he), [dir="rtl"]) {
+        font-family: 'Heebo', 'Inter', system-ui, sans-serif;
+      }
+      button { font-family: inherit; }
+
+      /* ---------- Layout ---------- */
+      .admin-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        grid-template-rows: 48px 1fr;
+        height: 100vh;
+        background: var(--bg);
+      }
+      .admin-header {
+        grid-column: 1 / -1;
+        display: flex; align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border-soft);
+        position: relative; z-index: 10;
+      }
+      .admin-title {
+        margin: 0;
+        font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .admin-filename {
+        font-weight: 600; font-size: 13.5px;
+        color: var(--ink); direction: ltr;
+      }
+      .admin-status {
+        font-size: 12px; color: var(--muted);
+        padding: 3px 8px; border-radius: 4px;
+      }
+      .admin-status-dirty { color: var(--warn); background: rgba(212, 120, 58, 0.08); }
+      .admin-status-saved { color: var(--ok); }
+      .admin-spacer { flex: 1; }
+      .admin-btn {
+        background: transparent; color: var(--ink-soft);
+        border: 1px solid var(--border);
+        padding: 5px 12px; border-radius: 5px;
+        font-size: 12.5px; font-weight: 500;
+        cursor: pointer; text-decoration: none;
+        transition: background 100ms, border-color 100ms, color 100ms;
+      }
+      .admin-btn:hover { background: var(--bg-hover); border-color: var(--muted-soft); color: var(--ink); }
+      .admin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .admin-btn-primary {
+        background: var(--ink); border-color: var(--ink); color: #fff;
+        font-weight: 600;
+      }
+      .admin-btn-primary:hover {
+        background: #1f1d18; border-color: #1f1d18; color: #fff;
+      }
+
+      /* ---------- Sidebar ---------- */
+      .admin-sidebar {
+        background: var(--bg-soft);
+        border-inline-end: 1px solid var(--border-soft);
+        overflow-y: auto;
+        display: flex; flex-direction: column;
+      }
+      .admin-sidebar-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 16px 8px;
+        font-size: 11px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .admin-icon-btn {
+        background: transparent; border: 0;
+        color: var(--muted); cursor: pointer;
+        width: 22px; height: 22px; border-radius: 4px;
+        font-size: 16px; line-height: 1; padding: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background 100ms, color 100ms;
+      }
+      .admin-icon-btn:hover { background: var(--bg-hover); color: var(--ink); }
+      .admin-file-list { flex: 1; padding: 4px 8px 24px; }
+      .admin-file {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1px;
+        border-radius: 5px;
+        margin-bottom: 1px;
+      }
+      .admin-file:hover { background: var(--bg-hover); }
+      .admin-file.active { background: var(--bg-selected); }
+      .admin-file.active .admin-file-open { color: var(--ink); font-weight: 600; }
+      .admin-file-open {
+        background: transparent; border: 0; color: var(--ink-soft);
+        text-align: start; cursor: pointer;
+        font-size: 13px; padding: 5px 8px;
+        word-break: break-all;
+        font: inherit; line-height: 1.35;
+        font-weight: 500;
+        direction: ltr;
+      }
+      .admin-file-action {
+        background: transparent; border: 0; color: transparent;
+        cursor: pointer; padding: 4px 5px; border-radius: 3px;
+        font-size: 12px; line-height: 1;
+        transition: background 100ms, color 100ms;
+      }
+      .admin-file:hover .admin-file-action { color: var(--muted); }
+      .admin-file-action:hover { background: rgba(0, 0, 0, 0.06); color: var(--ink) !important; }
+      .admin-file-action-danger:hover { color: var(--danger) !important; }
+
+      /* ---------- Main canvas ---------- */
+      .admin-main {
+        overflow-y: auto;
+        background: var(--bg);
+      }
+      .admin-main-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 56px 80px;
+        min-height: 100%;
+      }
+      .admin-empty {
+        height: 100%;
+        display: grid; place-items: center;
+        color: var(--muted); font-size: 14px;
+      }
+      .empty-dev-only {
+        height: 100vh; display: grid; place-items: center;
+        text-align: center; padding: 24px; background: var(--bg);
+      }
+      .empty-dev-only code {
+        background: var(--bg-muted); padding: 2px 6px;
+        border-radius: 4px; color: var(--accent);
+      }
+
+      /* ---------- Frontmatter "Properties" panel ---------- */
+      .fm {
+        margin-bottom: 32px;
+        background: var(--bg);
+      }
+      .fm-toggle-bar {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 0;
+        cursor: pointer;
+        color: var(--muted); font-size: 12px;
+        font-weight: 500;
+        user-select: none;
+        border-radius: 4px;
+      }
+      .fm-toggle-bar:hover { color: var(--ink); }
+      .fm-toggle-arrow {
+        display: inline-block;
+        transition: transform 150ms ease;
+        font-size: 10px;
+      }
+      .fm-toggle-bar.open .fm-toggle-arrow { transform: rotate(90deg); }
+      :is([dir="rtl"]) .fm-toggle-bar:not(.open) .fm-toggle-arrow { transform: rotate(180deg); }
+      .fm-properties-count {
+        color: var(--muted-soft); font-weight: 400;
+      }
+      .fm-body {
+        padding: 8px 0 12px;
+        display: grid; gap: 6px;
+      }
+      .fm-row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        align-items: center;
+        gap: 12px;
+        min-height: 32px;
+        border-radius: 4px;
+        padding: 2px 6px;
+      }
+      .fm-row:hover { background: var(--bg-soft); }
+      .fm-row > label {
+        color: var(--muted); font-size: 13px; font-weight: 400;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .fm input[type="text"],
+      .fm input[type="date"],
+      .fm textarea {
+        background: transparent; color: var(--ink);
+        border: 1px solid transparent; border-radius: 4px;
+        padding: 4px 8px; font: inherit; font-size: 14px;
+        width: 100%;
+        transition: background 100ms, border-color 100ms;
+      }
+      .fm input[type="text"]:hover,
+      .fm input[type="date"]:hover,
+      .fm textarea:hover { background: var(--bg-soft); }
+      .fm input[type="text"]:focus,
+      .fm input[type="date"]:focus,
+      .fm textarea:focus {
+        outline: none; background: var(--bg); border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-soft);
+      }
+      .fm textarea { resize: vertical; min-height: 32px; }
+      .fm-tags {
+        display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+        padding: 4px;
+        min-height: 32px;
+        border-radius: 4px;
+        border: 1px solid transparent;
+      }
+      .fm-tags:hover { background: var(--bg-soft); }
+      .fm-tags:focus-within {
+        background: var(--bg); border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-soft);
+      }
+      .fm-tag {
+        display: inline-flex; align-items: center; gap: 4px;
+        background: var(--bg-muted); border: 0;
+        padding: 2px 6px 2px 10px; border-radius: 999px;
+        font-size: 12px; color: var(--ink-soft);
+      }
+      .fm-tag button {
+        background: transparent; border: 0; color: var(--muted);
+        cursor: pointer; padding: 0 2px; font-size: 13px; line-height: 1;
+        border-radius: 50%;
+      }
+      .fm-tag button:hover { color: var(--danger); background: rgba(224, 62, 62, 0.1); }
+      .fm-tags input {
+        background: transparent !important; border: 0 !important;
+        color: var(--ink); padding: 4px 6px !important; font-size: 13px !important;
+        flex: 1; min-width: 140px; width: auto !important;
+        box-shadow: none !important;
+      }
+      .fm-tags input::placeholder { color: var(--muted-soft); }
+      .fm-toggle {
+        display: inline-flex !important; align-items: center; gap: 8px;
+        font-size: 13px !important; color: var(--ink); cursor: pointer;
+        padding: 4px 6px;
+      }
+      .fm-toggle input[type="checkbox"] {
+        width: 16px; height: 16px; accent-color: var(--accent);
+        margin: 0;
+      }
+      .fm-image { display: flex; flex-direction: column; gap: 6px; padding: 4px; }
+      .fm-image-preview {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 10px;
+        background: var(--bg-muted); border-radius: 5px;
+      }
+      .fm-image-src {
+        flex: 1; font-size: 11.5px; color: var(--ink-soft);
+        background: transparent; padding: 0;
+        word-break: break-all; direction: ltr; text-align: left;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+      }
+      .fm-image-remove {
+        background: transparent; border: 0; color: var(--muted);
+        cursor: pointer; padding: 2px 6px; font-size: 14px; border-radius: 4px;
+      }
+      .fm-image-remove:hover { color: var(--danger); background: rgba(224, 62, 62, 0.1); }
+      .fm-image-actions button {
+        background: var(--bg); color: var(--ink-soft);
+        border: 1px solid var(--border); border-radius: 5px;
+        padding: 5px 12px; font-size: 12.5px; cursor: pointer;
+        font-weight: 500;
+      }
+      .fm-image-actions button:hover:not(:disabled) {
+        background: var(--bg-hover); color: var(--ink);
+      }
+      .fm-image-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .fm-image-error { font-size: 12px; color: var(--danger); padding: 4px; }
+      .fm-extra-note {
+        margin-top: 8px; padding: 6px;
+        font-size: 11.5px; color: var(--muted);
+        font-style: italic;
+      }
+      .fm-divider {
+        border: 0;
+        border-top: 1px solid var(--border-soft);
+        margin: 24px 0 0;
+      }
+
+      /* ---------- MDXEditor styling - Notion-like ---------- */
+      .mdxeditor {
+        font-family: inherit;
+        --baseBg: var(--bg);
+        --baseBgSubtle: var(--bg-soft);
+        --baseBorder: var(--border);
+        --baseBorderHover: var(--muted-soft);
+        --basePageBg: var(--bg);
+        --baseText: var(--ink);
+        --baseTextContrast: var(--ink);
+        --accentBase: var(--accent);
+        --accentBorder: var(--accent);
+        --accentText: var(--accent);
+        --accentSolid: var(--accent);
+      }
+      .mdxeditor-toolbar {
+        position: sticky; top: 0; z-index: 5;
+        direction: ltr;
+        background: var(--bg) !important;
+        border-bottom: 1px solid var(--border-soft) !important;
+        border-radius: 0 !important;
+        padding: 8px 0 !important;
+        margin: 0 -8px 16px !important;
+      }
+      .mdxeditor-root-contenteditable {
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--ink);
+      }
+      .mdx-editor-content {
+        direction: rtl;
+        padding: 0 !important;
+        min-height: 600px;
+      }
+      .mdx-editor-content p,
+      .mdx-editor-content h1,
+      .mdx-editor-content h2,
+      .mdx-editor-content h3,
+      .mdx-editor-content h4,
+      .mdx-editor-content li,
+      .mdx-editor-content blockquote {
+        unicode-bidi: plaintext;
+        text-align: start;
+      }
+      .mdx-editor-content h1 {
+        font-size: 2.2em; font-weight: 800; line-height: 1.2;
+        margin: 1.4em 0 0.3em;
+      }
+      .mdx-editor-content h2 {
+        font-size: 1.55em; font-weight: 700;
+        margin: 1.3em 0 0.25em;
+      }
+      .mdx-editor-content h3 {
+        font-size: 1.2em; font-weight: 700;
+        margin: 1.1em 0 0.2em;
+      }
+      .mdx-editor-content p { margin: 0.6em 0; }
+      .mdx-editor-content blockquote {
+        margin: 0.8em 0;
+        padding: 6px 16px;
+        border-inline-start: 3px solid var(--ink);
+        color: var(--ink-soft);
+        background: var(--bg-soft);
+        border-radius: 0 4px 4px 0;
+      }
+      .mdx-editor-content :is(strong, b) { font-weight: 700; color: var(--ink); }
+      .mdx-editor-content :is(em, i) { font-style: italic; }
+      .mdx-editor-content a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-soft); }
+      /* Code blocks and inline code stay LTR */
+      .mdx-editor-content pre,
+      .mdx-editor-content code {
+        direction: ltr;
+        unicode-bidi: isolate;
+        text-align: left;
+        font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .mdx-editor-content :not(pre) > code {
+        background: var(--bg-muted);
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+        color: #c7254e;
+      }
+      .mdx-editor-content pre {
+        background: var(--bg-soft);
+        border: 1px solid var(--border-soft);
+        border-radius: 5px;
+        padding: 14px 16px;
+        overflow-x: auto;
+        font-size: 13.5px;
+        margin: 0.8em 0;
+      }
+      .mdx-editor-content ul, .mdx-editor-content ol {
+        padding-inline-start: 28px;
+        margin: 0.5em 0;
+      }
+      .mdx-editor-content li { margin: 0.25em 0; }
+      .mdx-editor-content hr {
+        border: 0; border-top: 1px solid var(--border);
+        margin: 1.6em 0;
+      }
+
+      /* ---------- JSX widget chips (Notion block-style) ---------- */
+      /* MDXEditor wraps each JSX node in a div with role/class. We style those. */
+      .mdxeditor [data-lexical-decorator="true"]:not(:has(.cm-editor)) {
+        position: relative;
+      }
+      /* The block editor wrapper that MDXEditor uses */
+      [class*="_blockEditor_"] {
+        background: var(--bg-soft) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
+        padding: 10px 14px !important;
+        margin: 8px 0 !important;
+        font-size: 13.5px !important;
+        font-family: inherit !important;
+        color: var(--ink-soft) !important;
+        position: relative;
+        transition: border-color 120ms, background 120ms;
+      }
+      [class*="_blockEditor_"]:hover {
+        border-color: var(--muted-soft) !important;
+        background: var(--bg-hover) !important;
+      }
+      /* The gear icon button inside the chip - make it less obtrusive */
+      [class*="_iconButton_"] {
+        opacity: 0.5; color: var(--muted) !important;
+      }
+      [class*="_blockEditor_"]:hover [class*="_iconButton_"] { opacity: 1; }
+      /* Inline JSX (Term, inline math) - smaller chip */
+      [class*="_blockEditor_"][class*="_inline"] {
+        display: inline-flex; vertical-align: baseline;
+        padding: 2px 8px !important; margin: 0 2px !important;
+      }
+
+      /* ---------- Custom widget editors ---------- */
+      /* Floating chrome (settings + delete) on hover */
+      .widget-chrome { position: relative; }
+      .widget-chrome-actions {
+        position: absolute;
+        top: -12px;
+        inset-inline-end: -8px;
+        display: none;
+        gap: 4px;
+        z-index: 3;
+      }
+      .widget-chrome:hover > .widget-chrome-actions,
+      .widget-chrome:focus-within > .widget-chrome-actions {
+        display: inline-flex;
+      }
+      .widget-chrome-btn {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--ink-soft);
+        cursor: pointer;
+        font-size: 12px; line-height: 1;
+        display: inline-flex; align-items: center; justify-content: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        transition: background 100ms, color 100ms, border-color 100ms;
+      }
+      .widget-chrome-btn:hover { background: var(--bg-hover); color: var(--ink); }
+      .widget-chrome-btn-danger:hover { color: var(--danger); border-color: var(--danger); }
+
+      /* Modal */
+      .widget-modal-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(15, 15, 14, 0.32);
+        z-index: 10000;
+        display: grid; place-items: center;
+        padding: 24px;
+      }
+      .widget-modal {
+        background: var(--bg);
+        border-radius: 8px;
+        width: 100%; max-width: 520px;
+        box-shadow: 0 20px 60px rgba(15,15,14,0.18), 0 0 0 1px var(--border);
+        overflow: hidden;
+        display: flex; flex-direction: column;
+        max-height: 80vh;
+      }
+      .widget-modal-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border-soft);
+        font-weight: 600; font-size: 14px; color: var(--ink);
+      }
+      .widget-modal-close {
+        background: transparent; border: 0;
+        color: var(--muted); cursor: pointer;
+        font-size: 18px; line-height: 1;
+        padding: 4px 8px; border-radius: 4px;
+      }
+      .widget-modal-close:hover { background: var(--bg-hover); color: var(--ink); }
+      .widget-modal-body { padding: 16px 18px; overflow-y: auto; }
+      .widget-modal-foot {
+        display: flex; justify-content: flex-end; gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-soft);
+        margin-top: 16px;
+      }
+      .widget-field-label {
+        display: block; font-size: 12px; color: var(--muted);
+        font-weight: 500; margin: 12px 0 6px;
+      }
+      .widget-field-label:first-child { margin-top: 0; }
+      .widget-input, .widget-textarea {
+        width: 100%;
+        background: var(--bg-soft); color: var(--ink);
+        border: 1px solid var(--border); border-radius: 5px;
+        padding: 8px 10px; font: inherit; font-size: 14px;
+      }
+      .widget-textarea {
+        resize: vertical; min-height: 64px;
+        font-family: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+        font-size: 13px;
+      }
+      .widget-input:focus, .widget-textarea:focus {
+        outline: none; border-color: var(--accent); background: var(--bg);
+        box-shadow: 0 0 0 2px var(--accent-soft);
+      }
+      .widget-preview {
+        background: var(--bg-soft);
+        border: 1px solid var(--border-soft);
+        border-radius: 5px;
+        padding: 14px;
+        min-height: 48px;
+        display: grid; place-items: center;
+      }
+      .widget-btn {
+        background: var(--bg); color: var(--ink-soft);
+        border: 1px solid var(--border); border-radius: 5px;
+        padding: 6px 14px; font-size: 13px; font-weight: 500;
+        cursor: pointer;
+      }
+      .widget-btn:hover { background: var(--bg-hover); color: var(--ink); }
+      .widget-btn-primary {
+        background: var(--ink); border-color: var(--ink); color: #fff;
+      }
+      .widget-btn-primary:hover { background: #1f1d18; color: #fff; }
+      .widget-type-picker {
+        display: flex; flex-wrap: wrap; gap: 6px;
+      }
+      .widget-type-chip {
+        padding: 4px 12px; border-radius: 999px;
+        font-size: 13px; font-weight: 500;
+        border: 2px solid transparent;
+        cursor: pointer;
+      }
+      .widget-type-chip.active { font-weight: 600; }
+      .widget-nested-host {
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 10px 12px;
+        min-height: 80px;
+      }
+      .widget-nested-host .mdxeditor-root-contenteditable { padding: 0 !important; min-height: 60px; }
+
+      /* ---------- Math preview ---------- */
+      /* Math is intrinsically LTR - isolate from the surrounding RTL prose so
+         KaTeX renders correctly and the chrome (settings + delete) sits on
+         the math's own right edge. */
+      .widget-math {
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 2px 4px;
+        transition: background 100ms;
+        direction: ltr;
+        unicode-bidi: isolate;
+      }
+      .widget-math:hover { background: var(--accent-soft); }
+      .widget-math-block {
+        display: block;
+        margin: 12px 0;
+        padding: 14px;
+        text-align: center;
+      }
+      .widget-math-inline {
+        display: inline-block;
+      }
+      /* Force the chrome buttons to sit on the math's right edge regardless of
+         the page direction (they default to inset-inline-end which would flip). */
+      .widget-math + .widget-chrome-actions,
+      .widget-chrome:has(.widget-math) > .widget-chrome-actions {
+        direction: ltr;
+      }
+
+      /* ---------- Callout in editor ---------- */
+      .widget-callout {
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 12px 0;
+      }
+      .widget-callout-head {
+        display: flex; align-items: center; gap: 8px;
+        font-weight: 600; font-size: 13px;
+        margin-bottom: 6px;
+      }
+      .widget-callout-icon {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 22px; height: 22px; border-radius: 50%;
+        color: #fff; font-family: ui-monospace, monospace;
+        font-size: 12px; font-weight: 700;
+      }
+      .widget-callout-body :is(p):first-child { margin-block-start: 0; }
+      .widget-callout-body :is(p):last-child { margin-block-end: 0; }
+
+      /* ---------- Spoiler in editor ---------- */
+      .widget-spoiler {
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin: 12px 0;
+      }
+      .widget-spoiler-summary {
+        font-weight: 600; color: var(--accent);
+        font-size: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed var(--border);
+        margin-bottom: 10px;
+      }
+      .widget-spoiler-arrow { color: var(--muted); margin-inline-end: 4px; }
+      .widget-spoiler-body :is(p):first-child { margin-block-start: 0; }
+      .widget-spoiler-body :is(p):last-child { margin-block-end: 0; }
+
+      /* ---------- PullQuote in editor ---------- */
+      .widget-pullquote {
+        font-size: 1.2em;
+        line-height: 1.5;
+        font-weight: 500;
+        color: var(--ink);
+        border-inline-start: 4px solid var(--accent);
+        padding: 8px 16px;
+        margin: 16px 0;
+        background: var(--accent-soft);
+        border-radius: 0 6px 6px 0;
+      }
+      .widget-pullquote :is(p) { margin: 0; }
+      .widget-pullquote-cite {
+        margin-top: 6px; font-size: 0.78em;
+        font-weight: 400; color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ---------- Term in editor (inline) ---------- */
+      .widget-term {
+        display: inline-block;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .widget-term:hover { background: var(--accent-soft); }
+      .widget-term-name {
+        color: var(--accent);
+        border-bottom: 1.5px dotted var(--accent);
+        padding: 0 1px;
+      }
+
+      /* ---------- Viz placeholder ---------- */
+      .widget-viz {
+        display: flex; align-items: center; gap: 14px;
+        background: linear-gradient(135deg, #fafaf9, #f3f3f1);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin: 12px 0;
+      }
+      .widget-viz-icon {
+        width: 38px; height: 38px;
+        display: grid; place-items: center;
+        background: var(--ink); color: #fff;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .widget-viz-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+      .widget-viz-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+      .widget-viz-prop { margin-bottom: 12px; }
+      .widget-viz-empty {
+        font-size: 13px; color: var(--muted);
+        padding: 12px; background: var(--bg-soft);
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    {isDev ? (
+      <AdminApp client:only="react" />
+    ) : (
+      <div class="empty-dev-only">
+        <div>
+          <p>Editor is dev-only.</p>
+          <p>Run <code>npm run dev</code> and open <code>/admin</code>.</p>
+        </div>
+      </div>
+    )}
+  </body>
+</html>

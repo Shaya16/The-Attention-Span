@@ -6,7 +6,7 @@
 
 **Architecture:** Three files. `Hero.tsx` is the orchestrator (state machine + layout + glow + CTA). `hero/tagline.ts` is pure data (tokens, candidates, attention pairs). `hero/AttentionArcs.tsx` is a presentational SVG component that measures token DOM positions and draws animated quadratic Bézier curves. State is driven by a single `phase` enum advanced by a sequenced `setTimeout` chain in a master `useEffect`.
 
-**Tech Stack:** Astro 5, React 19, motion (Framer Motion fork), Tailwind v4, TypeScript 5.7. No test framework in the project — verification is `npx tsc --noEmit` plus visual screenshots via the Claude Preview MCP tool.
+**Tech Stack:** Astro 5, React 19, motion (Framer Motion fork), Tailwind v4, TypeScript 5.7. No test framework in the project - verification is `npx tsc --noEmit` plus visual screenshots via the Claude Preview MCP tool.
 
 **Verification commands (used throughout):**
 - TypeScript: `npx tsc --noEmit`
@@ -15,7 +15,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-24-hero-redesign-design.md`
 
-**Important pre-task note:** The git status at the start of this work shows `M src/components/home/Hero.tsx` (uncommitted modifications from a prior session). The implementer should ask the user before starting whether to keep, stash, or discard those — this plan assumes the file is reset to its `b2654a0` HEAD state when Task 3 begins. The cleanest move is `git checkout src/components/home/Hero.tsx` before Task 3 to restore HEAD; the plan will then replace it entirely.
+**Important pre-task note:** The git status at the start of this work shows `M src/components/home/Hero.tsx` (uncommitted modifications from a prior session). The implementer should ask the user before starting whether to keep, stash, or discard those - this plan assumes the file is reset to its `b2654a0` HEAD state when Task 3 begins. The cleanest move is `git checkout src/components/home/Hero.tsx` before Task 3 to restore HEAD; the plan will then replace it entirely.
 
 ---
 
@@ -55,7 +55,7 @@ export type TokenIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 /**
  * Per-token alternates shown during the flicker. The LAST entry in each array
- * is the word that lands in the final sentence — keep it in sync with TOKENS.
+ * is the word that lands in the final sentence - keep it in sync with TOKENS.
  */
 export const CANDIDATES: Record<number, readonly string[]> = {
   0: ['Statistical', 'Deep', 'Machine'],
@@ -108,7 +108,7 @@ git commit -m "feat(hero): add tagline data (tokens, candidates, attention pairs
 **Files:**
 - Create: `src/components/home/hero/AttentionArcs.tsx`
 
-This component is presentational — it measures positioned token DOM nodes and renders animated SVG curves. Verification is deferred to Task 6 (when it gets wired into the Hero). For now we just want it to compile.
+This component is presentational - it measures positioned token DOM nodes and renders animated SVG curves. Verification is deferred to Task 6 (when it gets wired into the Hero). For now we just want it to compile.
 
 - [ ] **Step 1: Create the file**
 
@@ -255,7 +255,7 @@ git commit -m "feat(hero): add AttentionArcs component (SVG arcs between word re
 
 ## Task 3: Replace `Hero.tsx` with new static shell
 
-Replace the entire current `Hero.tsx` with a new shell that renders the final settled state statically — all tokens visible, glow on at idle intensity, CTAs visible, no arcs (yet), no animation. This is what the `prefers-reduced-motion` path will eventually render, and it gives a clean visual baseline before we layer the timeline on top.
+Replace the entire current `Hero.tsx` with a new shell that renders the final settled state statically - all tokens visible, glow on at idle intensity, CTAs visible, no arcs (yet), no animation. This is what the `prefers-reduced-motion` path will eventually render, and it gives a clean visual baseline before we layer the timeline on top.
 
 **Files:**
 - Modify (full replace): `src/components/home/Hero.tsx`
@@ -288,7 +288,7 @@ export default function Hero() {
     }
   }, []);
 
-  // Static shell — every token visible, glow at idle intensity, CTAs visible.
+  // Static shell - every token visible, glow at idle intensity, CTAs visible.
   // Animation, flicker, and arcs are layered in by subsequent tasks.
   void prefersReduced;
 
@@ -720,7 +720,7 @@ function Token({
 }
 ```
 
-(You'll need to import `useEffect, useState` if not already in the existing import line — they should already be there from Task 4.)
+(You'll need to import `useEffect, useState` if not already in the existing import line - they should already be there from Task 4.)
 
 - [ ] **Step 2: Replace the inline token render with `<Token>`**
 
@@ -1029,7 +1029,7 @@ Expected: PASS.
 Reload. The glow should:
 - Start invisible
 - Fade in to ~10% as the first token appears
-- Brighten subtly with each new token (look for a quick pulse, hard to catch in a single screenshot — best verified with `mcp__Claude_Preview__preview_eval` to check opacity at multiple timestamps, or just visually with the eye)
+- Brighten subtly with each new token (look for a quick pulse, hard to catch in a single screenshot - best verified with `mcp__Claude_Preview__preview_eval` to check opacity at multiple timestamps, or just visually with the eye)
 - After CTAs appear, do a slow 4-second breathing pulse
 
 If brightening is too obvious / distracting, lower the `0.06` peak in the burst layer. If the ambient pulse is too obvious, narrow the range from `[0.08, 0.14, 0.08]` to `[0.09, 0.12, 0.09]`.
@@ -1108,7 +1108,7 @@ git commit -m "feat(hero): wire regenerate button to restart timeline"
 
 ## Task 9: Add mobile arcs-skip
 
-On viewports under 640px, skip the arcs phases entirely — tagline wraps to many short lines on phones and arcs across line breaks get messy.
+On viewports under 640px, skip the arcs phases entirely - tagline wraps to many short lines on phones and arcs across line breaks get messy.
 
 **Files:**
 - Modify: `src/components/home/Hero.tsx`
@@ -1299,14 +1299,14 @@ Take screenshots at ~1s intervals for 10 seconds. Verify:
 
 While in the settled state:
 - `mcp__Claude_Preview__preview_click` on the regenerate button (selector: `button[aria-label="Regenerate"]`)
-- Immediately `mcp__Claude_Preview__preview_screenshot` — should be back to empty tagline
-- Wait 8 seconds, screenshot — should be settled again
+- Immediately `mcp__Claude_Preview__preview_screenshot` - should be back to empty tagline
+- Wait 8 seconds, screenshot - should be settled again
 - Verify no duplicate/ghost arcs from the prior run
 
 - [ ] **Step 3: Scroll hint**
 
 - `mcp__Claude_Preview__preview_click` on the `↓ writing` button
-- Screenshot — page should scroll to reveal the post list below the hero
+- Screenshot - page should scroll to reveal the post list below the hero
 
 - [ ] **Step 4: Mobile**
 
@@ -1328,7 +1328,7 @@ Verify no horizontal overflow, CTAs still tappable.
 
 - [ ] **Step 5: Console check**
 
-`mcp__Claude_Preview__preview_console_logs` — verify there are no errors or warnings from the Hero across any of the runs.
+`mcp__Claude_Preview__preview_console_logs` - verify there are no errors or warnings from the Hero across any of the runs.
 
 - [ ] **Step 6: Final TypeScript check**
 
@@ -1349,7 +1349,7 @@ Send a brief message summarizing:
 - Any tunable values the user may want to adjust (TOKEN_CYCLE_MS, glow opacities, candidate words, attention pair weights)
 - Suggest a manual look in their own browser before declaring it shipped
 
-No commit for this task — it's verification only.
+No commit for this task - it's verification only.
 
 ---
 

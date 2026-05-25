@@ -1,4 +1,4 @@
-# Hero redesign — Live LLM-generation centerpiece
+# Hero redesign - Live LLM-generation centerpiece
 
 **Date:** 2026-05-24
 **Component:** `src/components/home/Hero.tsx`
@@ -34,7 +34,7 @@ Total runtime from load to settled: ~8 seconds.
 - **Tagline:**
   - Font: Instrument Serif italic (matches existing site title font)
   - Size: `clamp(2.25rem, 7vw, 5rem)`, line-height ~1.05, letter-spacing -0.03em
-  - Color: `var(--color-ink)` for most words. One or two key words get `var(--color-accent)` (initial pick: "Attention" if present, else "context" — author-chosen, defined in `ACCENT_INDICES`).
+  - Color: `var(--color-ink)` for most words. One or two key words get `var(--color-accent)` (initial pick: "Attention" if present, else "context" - author-chosen, defined in `ACCENT_INDICES`).
   - Max-width ~16ch so it wraps into 2-3 lines on desktop, 3-4 on mobile
 - **Glow:**
   - Soft circular radial gradient, `var(--color-accent)` at low opacity
@@ -95,7 +95,7 @@ Authored attention pairs (per token → list of `{targetIndex, weight}`):
 
 | Token (i) | Attended-to indices and weights |
 |---|---|
-| 0 Machine | — (first token) |
+| 0 Machine | - (first token) |
 | 1 learning, | {0: 0.9} |
 | 2 explained | {0: 0.5, 1: 0.7} |
 | 3 before | {2: 0.6} |
@@ -157,10 +157,10 @@ src/components/home/
 ## Mobile
 
 - Default mobile sizing falls out of the `clamp()` on tagline font size (min 2.25rem = 36px)
-- Tagline wraps to 3-4 lines on phones — acceptable
+- Tagline wraps to 3-4 lines on phones - acceptable
 - **Attention arcs phase is skipped entirely when viewport width < 640px** (arcs across line breaks get visually messy). Phases 4-6 collapse to a single 200ms pause. CTA fades in earlier.
 - Glow scales proportionally with the tagline
-- CTA row remains a single row on mobile (tap targets ≥ 44px even though icons are 14px — wrap them in padded buttons)
+- CTA row remains a single row on mobile (tap targets ≥ 44px even though icons are 14px - wrap them in padded buttons)
 
 ## Code to remove
 

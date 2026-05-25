@@ -1,7 +1,7 @@
-# The Attention Span — initial blog scaffold
+# The Attention Span - initial blog scaffold
 
 **Date:** 2026-05-24
-**Status:** Approved — ready for implementation plan
+**Status:** Approved - ready for implementation plan
 
 ## Context
 
@@ -59,7 +59,7 @@ src/
     AttentionDemo.tsx                         # Editable sentence, hover-to-attend, synthetic softmax weights
 ```
 
-The viz components and posts are high quality and used **as-is** — no edits needed in this spec.
+The viz components and posts are high quality and used **as-is** - no edits needed in this spec.
 
 ## Customizations (the actual work)
 
@@ -86,9 +86,9 @@ The viz components and posts are high quality and used **as-is** — no edits ne
 
 **Renders:**
 - A `<section>` taking the top of the page (no fixed height; content-driven, generous vertical padding ~6rem top, ~3rem bottom).
-- **Title:** "The Attention Span" — Instrument Serif italic, `clamp(3rem, 8vw, 6.5rem)`, tight letter-spacing (`-0.04em`), tight line-height (1.0). Accent color used on a single word (the word `"Attention"` styled with `color: var(--color-accent)`).
-- **Tagline:** "Machine learning, explained before your context window runs out." — Geist, ~1.25rem, `var(--color-muted)`, max-width ~28rem.
-- **Social row:** Inline SVG icons (GitHub and LinkedIn) — no new dependency. Icons are 20×20, neutral stroke, hover transitions to `var(--color-accent)`. URLs:
+- **Title:** "The Attention Span" - Instrument Serif italic, `clamp(3rem, 8vw, 6.5rem)`, tight letter-spacing (`-0.04em`), tight line-height (1.0). Accent color used on a single word (the word `"Attention"` styled with `color: var(--color-accent)`).
+- **Tagline:** "Machine learning, explained before your context window runs out." - Geist, ~1.25rem, `var(--color-muted)`, max-width ~28rem.
+- **Social row:** Inline SVG icons (GitHub and LinkedIn) - no new dependency. Icons are 20×20, neutral stroke, hover transitions to `var(--color-accent)`. URLs:
   - GitHub: `https://github.com/Shaya16`
   - LinkedIn: `https://www.linkedin.com/in/shayavivi/`
 
@@ -96,7 +96,7 @@ The viz components and posts are high quality and used **as-is** — no edits ne
 - On mount, title fades in (`opacity 0 → 1`) and translates up (`y: 16 → 0`) over 600ms with `easeOut`.
 - Tagline follows with a 120ms delay, same animation, slightly faster (400ms).
 - Social row follows with a 240ms delay.
-- Wrap the section in a `prefers-reduced-motion: reduce` check — if reduced motion is on, render the final state immediately with no animation.
+- Wrap the section in a `prefers-reduced-motion: reduce` check - if reduced motion is on, render the final state immediately with no animation.
 
 **Hydration:** `client:load` (above the fold, small JS payload).
 
@@ -201,7 +201,7 @@ The work is "done" only after all of these pass:
 7. `npm run build` completes with no errors; the `dist/` directory contains `index.html`, `posts/three-things/index.html`, `posts/hello-blog/index.html`, `about/index.html`, `rss.xml`, `sitemap-index.xml`.
 8. `git status` shows a clean working tree after the initial commit; `git log` shows one commit.
 
-If any of the above fails, do **not** report the work as complete — fix the failure first, or stop and report the failure with the actual error message.
+If any of the above fails, do **not** report the work as complete - fix the failure first, or stop and report the failure with the actual error message.
 
 ## Open assumptions baked into the spec
 
@@ -209,7 +209,7 @@ These are decisions I'm making rather than asking again. Push back if any is wro
 
 - The site URL placeholder `https://the-attention-span.pages.dev` is fine for `astro.config.mjs` `site` field for now (used only for RSS/sitemap absolute URLs). Shay will swap it when Cloudflare is wired.
 - The word styled with the accent color in the hero is **"Attention"** (not "Span"). It's the more interesting word and ties to the ML theme.
-- Inline SVG over `lucide-react` for the two social icons. Two SVGs vs. a 13kb dependency — not worth it for this build.
+- Inline SVG over `lucide-react` for the two social icons. Two SVGs vs. a 13kb dependency - not worth it for this build.
 - Existing fonts-via-Google-Fonts approach in `BaseLayout.astro` is kept. Self-hosting via `@fontsource/*` is a future optimization, not part of this build.
 - Routes stay as `/posts/[slug]` (from the scaffold). Not changing to `/blog/`.
 - The two sample posts ship with the scaffold's `pubDate` values (2026-05-23 and 2026-05-24). These are fine for now.

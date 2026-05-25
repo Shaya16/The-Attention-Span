@@ -11,6 +11,15 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     title: p.data.title,
     description: p.data.description,
     pubDate: p.data.pubDate,
+    tags: p.data.tags,
+    image: p.data.image
+      ? {
+          src: p.data.image.src.src,
+          width: p.data.image.src.width,
+          height: p.data.image.src.height,
+          alt: p.data.image.alt,
+        }
+      : null,
   }));
 ---
 
@@ -18,13 +27,13 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   <Hero client:load slot="hero" />
 
   <section class="mt-16">
-    <h2 class="mb-6 text-sm font-medium uppercase tracking-widest text-[var(--color-muted)]">
-      Writing
+    <h2 class="mb-6 text-sm font-medium text-[var(--color-muted)]">
+      כתיבה
     </h2>
     {posts.length > 0 ? (
       <PostList client:visible posts={posts} />
     ) : (
-      <p class="text-[var(--color-muted)]">No posts yet. Add one to <code>src/content/blog/</code>.</p>
+      <p class="text-[var(--color-muted)]">אין עדיין מאמרים. הוסיפו אחד ב-<code>src/content/blog/</code>.</p>
     )}
   </section>
 </BaseLayout>

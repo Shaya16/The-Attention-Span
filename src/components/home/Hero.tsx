@@ -1,45 +1,50 @@
 import { motion, useReducedMotion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ACCENT_INDICES, CANDIDATES, TOKENS } from './hero/tagline';
-import AttentionArcs from './hero/AttentionArcs';
-import type { Phase } from './hero/AttentionArcs';
+import { useCallback, useEffect, useState } from 'react';
+import { ACCENT_INDICES, ATTENTION_PAIRS, CANDIDATES, TOKENS } from './hero/tagline';
+
+type Phase = 'pre' | 'generating' | 'settling' | 'cta-in' | 'idle';
 
 const GLOW_FADE_IN_MS = 200;
-const TOKEN_CYCLE_MS = 480;
+const TOKEN_CYCLE_MS = 560;
 const SETTLE_MS = 400;
-const ARCS_IN_MS = 1350;
-const ARCS_HOLD_MS = 800;
-const ARCS_OUT_MS = 600;
 const CTA_IN_MS = 400;
-const FLICKER_STEP_MS = 50;
+const FLICKER_STEP_MS = 130;
 const GLOW_BURST_MS = 200;
-const MOBILE_BREAKPOINT = 640;
+
+const LOGO_COLORS = [
+  'var(--color-accent)',
+  'var(--color-accent-2)',
+  'var(--color-accent-3)',
+  'var(--color-accent-4)',
+];
+
+const PROB_TABLE: number[][] = [
+  [0.18, 0.31],
+  [0.12, 0.25],
+  [0.22, 0.35],
+  [0.15, 0.41],
+  [0.09, 0.28],
+  [0.24, 0.38],
+  [0.14, 0.33],
+  [0.20, 0.36],
+];
 
 export default function Hero() {
   const prefersReduced = useReducedMotion();
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const tokenRefs = useRef<Map<number, HTMLElement | null>>(new Map());
-
   const [phase, setPhase] = useState<Phase>(prefersReduced ? 'idle' : 'pre');
   const [tokensRevealed, setTokensRevealed] = useState(
     prefersReduced ? TOKENS.length : 0
   );
   const [glowBurst, setGlowBurst] = useState(0);
   const [runId, setRunId] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const [hoveredToken, setHoveredToken] = useState<number | null>(null);
 
   useEffect(() => {
     if (prefersReduced) return;
 
     setPhase('pre');
     setTokensRevealed(0);
+    setHoveredToken(null);
     const timeouts: number[] = [];
     const t = (ms: number, fn: () => void) => {
       timeouts.push(window.setTimeout(fn, ms));
@@ -60,17 +65,6 @@ export default function Hero() {
     t(elapsed, () => setPhase('settling'));
     elapsed += SETTLE_MS;
 
-    if (!isMobile) {
-      t(elapsed, () => setPhase('arcs-in'));
-      elapsed += ARCS_IN_MS;
-      t(elapsed, () => setPhase('arcs-hold'));
-      elapsed += ARCS_HOLD_MS;
-      t(elapsed, () => setPhase('arcs-out'));
-      elapsed += ARCS_OUT_MS;
-    } else {
-      elapsed += 200;
-    }
-
     t(elapsed, () => setPhase('cta-in'));
     elapsed += CTA_IN_MS;
 
@@ -79,7 +73,7 @@ export default function Hero() {
     return () => {
       timeouts.forEach((id) => window.clearTimeout(id));
     };
-  }, [prefersReduced, runId, isMobile]);
+  }, [prefersReduced, runId]);
 
   const regenerate = useCallback(() => {
     setRunId((r) => r + 1);
@@ -95,23 +89,29 @@ export default function Hero() {
   }, []);
 
   const ctaVisible = phase === 'cta-in' || phase === 'idle';
+  const interactive = phase === 'idle' || phase === 'cta-in';
+  const autoActiveToken =
+    (phase === 'generating' || phase === 'settling') && tokensRevealed > 0
+      ? tokensRevealed - 1
+      : null;
 
   return (
     <section
       dir="ltr"
-      className="relative flex min-h-[80vh] items-center justify-center overflow-hidden px-6 py-12"
+      className="relative mx-4 flex min-h-[50vh] items-center justify-center overflow-hidden rounded-2xl px-6 py-16 sm:mx-6 sm:py-24"
+      style={{ background: '#0a0a0a' }}
     >
       <Glow phase={phase} burst={glowBurst} prefersReduced={!!prefersReduced} />
 
-      <div ref={containerRef} className="relative max-w-xl text-center">
+      <div className="relative max-w-6xl text-center">
         <h1
           style={{
-            fontFamily: 'var(--font-display)',
-            fontStyle: 'italic',
-            fontSize: 'clamp(2.25rem, 7vw, 5rem)',
-            lineHeight: 1.05,
-            letterSpacing: '-0.03em',
-            color: 'var(--color-ink)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: 'clamp(2.25rem, 6.5vw, 4rem)',
+            lineHeight: 1.45,
+            letterSpacing: '-0.035em',
+            fontWeight: 600,
+            color: '#fff',
           }}
         >
           {TOKENS.map((tok, i) => (
@@ -121,26 +121,17 @@ export default function Hero() {
               token={tok}
               revealed={tokensRevealed}
               prefersReduced={!!prefersReduced}
-              registerRef={(el: HTMLSpanElement | null) => {
-                tokenRefs.current.set(i, el);
-              }}
+              hoveredToken={interactive ? hoveredToken : autoActiveToken}
+              onHoverStart={interactive ? setHoveredToken : undefined}
+              onHoverEnd={interactive ? () => setHoveredToken(null) : undefined}
             />
           ))}
         </h1>
-
-        {!isMobile && (
-          <AttentionArcs
-            tokenRefs={tokenRefs.current}
-            containerRef={containerRef}
-            phase={phase}
-            measureKey={runId}
-          />
-        )}
       </div>
 
       <motion.div
         className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-5 text-sm"
-        style={{ color: 'var(--color-muted)' }}
+        style={{ color: 'rgba(255,255,255,0.5)' }}
         initial={false}
         animate={{ opacity: ctaVisible ? 1 : 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -150,7 +141,7 @@ export default function Hero() {
           onClick={regenerate}
           aria-label="Regenerate"
           className="rounded p-2 transition hover:opacity-80"
-          style={{ color: 'var(--color-muted)' }}
+          style={{ color: 'rgba(255,255,255,0.5)' }}
         >
           <RefreshIcon />
         </button>
@@ -159,7 +150,7 @@ export default function Hero() {
           onClick={scrollToWriting}
           className="rounded px-2 py-2 font-mono text-xs uppercase tracking-wider transition hover:opacity-80"
         >
-          ↓ writing
+          ↓ לכל הפוסטים
         </button>
       </motion.div>
     </section>
@@ -171,13 +162,17 @@ function Token({
   token,
   revealed,
   prefersReduced,
-  registerRef,
+  hoveredToken,
+  onHoverStart,
+  onHoverEnd,
 }: {
   index: number;
   token: string;
   revealed: number;
   prefersReduced: boolean;
-  registerRef: (el: HTMLSpanElement | null) => void;
+  hoveredToken: number | null;
+  onHoverStart?: (index: number) => void;
+  onHoverEnd?: () => void;
 }) {
   const isVisible = index < revealed;
   const isCurrent = index === revealed - 1;
@@ -207,29 +202,99 @@ function Token({
     return () => window.clearInterval(id);
   }, [isCurrent, index, prefersReduced]);
 
+  const isFlickering = flickerStep !== null;
   const displayToken =
-    flickerStep !== null ? CANDIDATES[index]?.[flickerStep] ?? token : token;
+    isFlickering ? CANDIDATES[index]?.[flickerStep] ?? token : token;
+
+  const probability =
+    isFlickering && flickerStep !== null
+      ? PROB_TABLE[index]?.[flickerStep]?.toFixed(2) ?? null
+      : null;
+
+  const isHovered = hoveredToken === index;
+  const attentionWeight =
+    hoveredToken !== null
+      ? (ATTENTION_PAIRS[hoveredToken]?.find((p) => p.target === index)?.weight ?? 0)
+      : 0;
+  const showUnderline = attentionWeight > 0.05;
+  const underlineColor =
+    hoveredToken !== null ? LOGO_COLORS[hoveredToken % LOGO_COLORS.length] : 'transparent';
 
   return (
     <span
-      ref={registerRef}
-      className="mr-[0.25em] inline-block"
+      className="relative mr-[0.25em] inline-block"
       style={{
         visibility: isVisible ? 'visible' : 'hidden',
-        color,
+        cursor: isVisible && !isFlickering ? 'pointer' : 'default',
       }}
+      onMouseEnter={() => onHoverStart?.(index)}
+      onMouseLeave={() => onHoverEnd?.()}
     >
+      <span aria-hidden="true" className="invisible">{token}</span>
+
+      {isHovered && (
+        <motion.span
+          className="absolute inset-0 rounded-[3px]"
+          style={{ background: underlineColor }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.12 }}
+          transition={{ duration: 0.15 }}
+        />
+      )}
+
       <motion.span
-        initial={prefersReduced || !isVisible ? false : { opacity: 0, y: 4 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : false}
-        transition={{ duration: 0.18, ease: 'easeOut' }}
-        className="inline-block"
+        key={displayToken}
+        initial={prefersReduced || !isVisible ? false : { opacity: 0, y: isFlickering ? 0 : 4 }}
+        animate={isVisible ? { opacity: isFlickering ? 0.6 : 1, y: 0 } : false}
+        transition={{ duration: isFlickering ? 0.08 : 0.22, ease: 'easeOut' }}
+        className="absolute inset-0 text-center"
+        style={{ color: isFlickering ? 'rgba(255,255,255,0.4)' : isHovered ? underlineColor : color }}
       >
         {displayToken}
       </motion.span>
+
+      {probability && (
+        <motion.span
+          key={`p-${flickerStep}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 0.06 }}
+          className="pointer-events-none absolute left-0 w-full text-center font-mono"
+          style={{
+            top: '100%',
+            marginTop: '2px',
+            fontSize: '0.25em',
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: '0em',
+          }}
+        >
+          {probability}
+        </motion.span>
+      )}
+
+      <motion.span
+        className="pointer-events-none absolute left-0 w-full rounded-full"
+        style={{
+          bottom: '-3px',
+          background: underlineColor,
+        }}
+        initial={false}
+        animate={{
+          height: showUnderline ? 2 + attentionWeight * 4 : 0,
+          opacity: showUnderline ? 0.4 + attentionWeight * 0.5 : 0,
+        }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+      />
     </span>
   );
 }
+
+const GLOW_BLOBS = [
+  { color: 'var(--color-accent)', x: '60%', y: '35%', size: '80vmin' },
+  { color: 'var(--color-accent-2)', x: '28%', y: '58%', size: '65vmin' },
+  { color: 'var(--color-accent-3)', x: '72%', y: '68%', size: '55vmin' },
+  { color: 'var(--color-accent-4)', x: '35%', y: '22%', size: '50vmin' },
+];
 
 function Glow({
   phase,
@@ -240,51 +305,60 @@ function Glow({
   burst: number;
   prefersReduced: boolean;
 }) {
-  const baseOpacity = phase === 'pre' ? 0 : 0.1;
+  const isActive = phase !== 'pre';
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute"
-      style={{
-        width: '70vmin',
-        height: '70vmin',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
+      className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      <motion.div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(closest-side, var(--color-accent), transparent 70%)',
-        }}
-        initial={prefersReduced ? false : { opacity: 0 }}
-        animate={
-          prefersReduced
-            ? { opacity: 0.1 }
-            : phase === 'idle'
-              ? { opacity: [0.08, 0.14, 0.08] }
-              : { opacity: baseOpacity }
-        }
-        transition={
-          prefersReduced
-            ? { duration: 0 }
-            : phase === 'idle'
-              ? { duration: 4, repeat: Infinity, ease: 'easeInOut' }
-              : { duration: 0.2, ease: 'easeOut' }
-        }
-      />
+      {GLOW_BLOBS.map((blob, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: blob.size,
+            height: blob.size,
+            left: blob.x,
+            top: blob.y,
+            transform: 'translate(-50%, -50%)',
+            background: `radial-gradient(closest-side, ${blob.color}, transparent 70%)`,
+          }}
+          initial={prefersReduced ? false : { opacity: 0 }}
+          animate={
+            prefersReduced
+              ? { opacity: 0.08 }
+              : phase === 'idle'
+                ? {
+                    opacity: [0.07, 0.13, 0.07],
+                    x: [0, i % 2 === 0 ? 30 : -25, 0],
+                    y: [0, i % 2 === 0 ? -20 : 25, 0],
+                  }
+                : { opacity: isActive ? 0.09 : 0 }
+          }
+          transition={
+            prefersReduced
+              ? { duration: 0 }
+              : phase === 'idle'
+                ? { duration: 8 + i * 3, repeat: Infinity, ease: 'easeInOut' }
+                : { duration: 0.4, ease: 'easeOut' }
+          }
+        />
+      ))}
       {!prefersReduced && burst > 0 && (
         <motion.div
           key={burst}
-          className="absolute inset-0"
+          className="absolute rounded-full"
           style={{
+            width: '50vmin',
+            height: '50vmin',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             background:
               'radial-gradient(closest-side, var(--color-accent), transparent 70%)',
           }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.06, 0] }}
+          animate={{ opacity: [0, 0.05, 0] }}
           transition={{ duration: GLOW_BURST_MS / 1000, ease: 'easeOut' }}
         />
       )}
