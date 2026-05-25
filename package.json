@@ -41,6 +41,6 @@
     "@types/react-dom": "^19.0.0",
     "recharts": "^2.13.0",
     "typescript": "^5.7.0",
-    "wrangler": "^3.90.0"
+    "wrangler": "^4.94.0"
   }
 }
