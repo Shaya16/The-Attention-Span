@@ -1,6 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react';
-import type { Post, PostStat } from './PostList';
-import PostStats from '../blog/PostStats';
+import type { Post } from './PostList';
 
 const formatDate = (d: Date | string) => {
   const date = d instanceof Date ? d : new Date(d);
@@ -19,10 +18,9 @@ const isoDate = (d: Date | string) => {
 interface Props {
   post: Post;
   index: number;
-  stat?: PostStat;
 }
 
-export default function PostListItem({ post, index, stat }: Props) {
+export default function PostListItem({ post, index }: Props) {
   const prefersReduced = useReducedMotion();
 
   const motionProps = prefersReduced
@@ -92,9 +90,6 @@ export default function PostListItem({ post, index, stat }: Props) {
           >
             {post.description}
           </span>
-          {stat && (stat.claps > 0 || stat.comments > 0) && (
-            <PostStats claps={stat.claps} comments={stat.comments} />
-          )}
         </div>
       </a>
     </motion.li>

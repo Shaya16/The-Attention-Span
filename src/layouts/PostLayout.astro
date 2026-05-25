@@ -2,7 +2,6 @@
 import BaseLayout from './BaseLayout.astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import EngagementBar from '../components/blog/EngagementBar';
 
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -11,7 +10,6 @@ interface Props {
 
 const { post, readingTime } = Astro.props;
 const { title, description, pubDate, tags, image } = post.data;
-const slug = post.id;
 
 const dateStr = pubDate.toLocaleDateString('he-IL', {
   year: 'numeric',
@@ -21,51 +19,67 @@ const dateStr = pubDate.toLocaleDateString('he-IL', {
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="pb-24 sm:pb-20">
-    <article class="prose-post" dir="rtl" lang="he">
-      <h1 dir="auto">{title}</h1>
-      <p class="post-subtitle !mb-4" dir="auto">{description}</p>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/applause-button/dist/applause-button.css"
+  />
 
-      <div class="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--color-muted)]">
-        {readingTime && <span>{readingTime}</span>}
-        {readingTime && <span aria-hidden="true">·</span>}
-        <time datetime={pubDate.toISOString()}>{dateStr}</time>
-        {tags.length > 0 && (
-          <>
-            <span aria-hidden="true">·</span>
-            <ul class="flex flex-wrap gap-1.5" dir="ltr">
-              {tags.map((tag) => (
-                <li class="rounded-full bg-[color-mix(in_oklch,var(--color-accent-2)_15%,transparent)] px-2 py-0.5 text-xs">
-                  #{tag}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+  <article class="prose-post" dir="rtl" lang="he">
+    <h1 dir="auto">{title}</h1>
+    <p class="post-subtitle !mb-4" dir="auto">{description}</p>
 
-      <div class="mb-10 flex items-center gap-3">
-        <div
-          aria-hidden="true"
-          class="flex h-10 w-10 items-center justify-center rounded-full text-base font-semibold text-[var(--color-paper)]"
-          style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));"
-        >
-          ש
-        </div>
-        <span class="text-sm font-medium text-[var(--color-ink)]">שי אביבי</span>
-      </div>
-
-      {image ? (
-        <figure class="post-cover">
-          <Image src={image.src} alt={image.alt} />
-        </figure>
-      ) : (
-        <div class="post-cover post-cover--placeholder" aria-hidden="true"></div>
+    <div class="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--color-muted)]">
+      {readingTime && <span>{readingTime}</span>}
+      {readingTime && <span aria-hidden="true">·</span>}
+      <time datetime={pubDate.toISOString()}>{dateStr}</time>
+      {tags.length > 0 && (
+        <>
+          <span aria-hidden="true">·</span>
+          <ul class="flex flex-wrap gap-1.5" dir="ltr">
+            {tags.map((tag) => (
+              <li class="rounded-full bg-[color-mix(in_oklch,var(--color-accent-2)_15%,transparent)] px-2 py-0.5 text-xs">
+                #{tag}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
+    </div>
 
-      <slot />
-    </article>
+    <div class="mb-10 flex items-center gap-3">
+      <div
+        aria-hidden="true"
+        class="flex h-10 w-10 items-center justify-center rounded-full text-base font-semibold text-[var(--color-paper)]"
+        style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));"
+      >
+        ש
+      </div>
+      <span class="text-sm font-medium text-[var(--color-ink)]">שי אביבי</span>
+    </div>
+
+    {image ? (
+      <figure class="post-cover">
+        <Image src={image.src} alt={image.alt} />
+      </figure>
+    ) : (
+      <div class="post-cover post-cover--placeholder" aria-hidden="true"></div>
+    )}
+
+    <slot />
+  </article>
+
+  <div class="prose-post mt-16 mb-10 flex flex-col items-center gap-2 border-t border-[var(--color-line)] pt-10">
+    <applause-button
+      color="oklch(0.65 0.22 25)"
+      multiclap="true"
+      style="width: 58px; height: 58px;"
+    ></applause-button>
+    <span class="text-xs text-[var(--color-muted)]">אהבתם? לחצו כפיים</span>
   </div>
 
-  <EngagementBar client:load slug={slug} />
+  <script
+    src="https://unpkg.com/applause-button/dist/applause-button.js"
+    is:inline
+    defer
+  ></script>
 </BaseLayout>
