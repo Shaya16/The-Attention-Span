@@ -429,6 +429,83 @@ export function TermEditor(props: JsxEditorProps) {
   );
 }
 
+// ===================== EXPLAINER =====================
+export function ExplainerEditor(props: JsxEditorProps) {
+  const update = useMdastNodeUpdater<MdxJsxFlowElement>();
+  const node = props.mdastNode as MdxJsxFlowElement;
+  const term = getAttr(node, 'term');
+  const title = getAttr(node, 'title');
+  const heading = title || (term ? `מה זה ${term}?` : 'הסבר נוסף');
+  const [open, setOpen] = useState(false);
+  const [draftTerm, setDraftTerm] = useState(term);
+  const [draftTitle, setDraftTitle] = useState(title);
+
+  useEffect(() => { setDraftTerm(term); setDraftTitle(title); }, [term, title]);
+
+  const save = () => {
+    const stripAttrs = (n: MdxJsxFlowElement, names: string[]) => ({
+      ...n,
+      attributes: (n.attributes ?? []).filter(
+        (a) => !(a.type === 'mdxJsxAttribute' && names.includes(a.name)),
+      ),
+    });
+    let next: MdxJsxFlowElement = stripAttrs(node, ['term', 'title']);
+    if (draftTitle.trim()) next = setAttr(next, 'title', draftTitle);
+    else if (draftTerm.trim()) next = setAttr(next, 'term', draftTerm);
+    update(next);
+    setOpen(false);
+  };
+
+  return (
+    <WidgetChrome onSettings={() => setOpen(true)}>
+      <div className="widget-explainer">
+        <div className="widget-explainer-head" contentEditable={false}>
+          <span className="widget-explainer-icon">?</span>
+          <span className="widget-explainer-title">{heading}</span>
+          <span className="widget-explainer-chevron">▾</span>
+        </div>
+        <div className="widget-explainer-body">
+          <NestedLexicalEditor<MdxJsxFlowElement>
+            block
+            getContent={(n) => n.children as Mdast.RootContent[]}
+            getUpdatedMdastNode={(n, children) => ({
+              ...n,
+              children: children as MdxJsxFlowElement['children'],
+            })}
+          />
+        </div>
+      </div>
+      <WidgetModal title="הגדרות Explainer" open={open} onClose={() => setOpen(false)}>
+        <label className="widget-field-label">מונח קצר (term)</label>
+        <input
+          className="widget-input"
+          type="text"
+          value={draftTerm}
+          onChange={(e) => setDraftTerm(e.target.value)}
+          placeholder="sigmoid, KL divergence, mode..."
+          dir="auto"
+        />
+        <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+          ירונדר ככותרת "מה זה {'{term}'}?". אם מילאת title למטה הוא יחליף את זה.
+        </div>
+        <label className="widget-field-label" style={{ marginTop: 14 }}>כותרת מלאה (title, אופציונלי)</label>
+        <input
+          className="widget-input"
+          type="text"
+          value={draftTitle}
+          onChange={(e) => setDraftTitle(e.target.value)}
+          placeholder="מה זה policy בהקשר הזה?"
+          dir="auto"
+        />
+        <div className="widget-modal-foot">
+          <button type="button" className="widget-btn" onClick={() => setOpen(false)}>ביטול</button>
+          <button type="button" className="widget-btn widget-btn-primary" onClick={save}>שמור</button>
+        </div>
+      </WidgetModal>
+    </WidgetChrome>
+  );
+}
+
 // ===================== VIZ component placeholder =====================
 export function VizEditor(props: JsxEditorProps) {
   const update = useMdastNodeUpdater<MdxJsxFlowElement>();

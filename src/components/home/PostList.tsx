@@ -1,4 +1,4 @@
-import FeaturedPostCard from './FeaturedPostCard';
+import FeaturedPost from './FeaturedPost';
 import PostListItem from './PostListItem';
 
 export interface PostImage {
@@ -27,10 +27,10 @@ export default function PostList({ posts }: Props) {
   const [featured, ...rest] = posts;
 
   return (
-    <div className="space-y-10">
-      <FeaturedPostCard post={featured} />
+    <div>
+      <FeaturedPost post={featured} />
       {rest.length > 0 && (
-        <ul className="space-y-1">
+        <ul className="mt-16 grid grid-cols-1 gap-x-9 gap-y-14 md:grid-cols-2">
           {rest.map((post, i) => (
             <PostListItem key={post.slug} post={post} index={i} />
           ))}

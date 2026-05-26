@@ -682,6 +682,45 @@ const isDev = import.meta.env.DEV;
         font-style: italic;
       }
 
+      /* ---------- Explainer in editor ---------- */
+      .widget-explainer {
+        border: 1px solid #c5d8ee;
+        background: #eef4fb;
+        border-radius: 8px;
+        margin: 14px 0;
+        overflow: hidden;
+      }
+      .widget-explainer-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        color: #2c64a0;
+        font-weight: 600;
+        font-size: 14px;
+        background: #e6eef9;
+      }
+      .widget-explainer-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: #4a86c8;
+        color: #fff;
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .widget-explainer-title { flex: 1; }
+      .widget-explainer-chevron { color: #4a86c8; font-size: 12px; }
+      .widget-explainer-body {
+        padding: 10px 14px;
+        color: var(--ink);
+      }
+      .widget-explainer-body :is(p):first-child { margin-block-start: 0; }
+      .widget-explainer-body :is(p):last-child { margin-block-end: 0; }
+
       /* ---------- Term in editor (inline) ---------- */
       .widget-term {
         display: inline-block;

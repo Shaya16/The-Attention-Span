@@ -37,6 +37,7 @@ import {
   SpoilerEditor,
   PullQuoteEditor,
   TermEditor,
+  ExplainerEditor,
   VizEditor,
 } from './WidgetEditors';
 
@@ -81,6 +82,18 @@ const BLOG_COMPONENTS: JsxComponentDescriptor[] = [
     defaultExport: true,
     Editor: TermEditor,
   },
+  {
+    name: 'Explainer',
+    kind: 'flow',
+    source: '../../components/blog/Explainer.astro',
+    props: [
+      { name: 'term', type: 'string' },
+      { name: 'title', type: 'string' },
+    ],
+    hasChildren: true,
+    defaultExport: true,
+    Editor: ExplainerEditor,
+  },
 ];
 
 // Viz components - heavy interactive React widgets. Render as placeholder chips
@@ -94,6 +107,8 @@ const VIZ_NAMES = [
   'EmbeddingSpace',
   'QKV',
   'WeightedSum',
+  'ModeCollapse',
+  'PPOClip',
 ];
 
 const VIZ_COMPONENTS: JsxComponentDescriptor[] = VIZ_NAMES.map((name) => ({
@@ -216,6 +231,14 @@ function InsertWidgetMenu() {
         kind: 'text', name: 'Term',
         props: { name: '' },
         children: [{ type: 'text' as const, value: 'הגדרה' }],
+      }),
+    },
+    {
+      label: 'Explainer (collapsible)',
+      run: () => insertJsx({
+        kind: 'flow', name: 'Explainer',
+        props: { term: '' },
+        children: [emptyParagraph()],
       }),
     },
     { divider: true as const },

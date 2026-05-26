@@ -23,11 +23,11 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   }));
 ---
 
-<BaseLayout title="The Attention Span">
+<BaseLayout title="The Attention Span" theme="dark">
   <Hero client:load slot="hero" />
 
-  <section class="mt-16">
-    <h2 class="mb-6 text-sm font-medium text-[var(--color-muted)]">
+  <section slot="wide" class="mt-8">
+    <h2 class="mb-8 text-sm font-medium text-[var(--color-muted)]">
       כתיבה
     </h2>
     {posts.length > 0 ? (

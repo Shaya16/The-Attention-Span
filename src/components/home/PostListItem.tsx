@@ -26,29 +26,28 @@ export default function PostListItem({ post, index }: Props) {
   const motionProps = prefersReduced
     ? { initial: false as const, animate: { opacity: 1, y: 0 } }
     : {
-        initial: { opacity: 0, y: 8 },
+        initial: { opacity: 0, y: 12 },
         animate: { opacity: 1, y: 0 },
         transition: {
-          duration: 0.35,
-          delay: 0.15 + index * 0.06,
+          duration: 0.4,
+          delay: 0.2 + index * 0.07,
           ease: 'easeOut' as const,
         },
       };
 
+  const tags = post.tags.slice(0, 3);
+
   return (
     <motion.li {...motionProps}>
-      <a
-        href={`/posts/${post.slug}/`}
-        className="group flex items-center gap-4 border-b border-[var(--color-line)] py-4 transition hover:border-[var(--color-accent)] sm:gap-5 sm:py-5"
-      >
-        <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)] sm:h-24 sm:w-36">
+      <a href={`/posts/${post.slug}/`} className="group block">
+        <div className="relative aspect-video overflow-hidden rounded-2xl">
           {post.image ? (
             <img
               src={post.image.src}
               alt={post.image.alt}
               width={post.image.width}
               height={post.image.height}
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />
           ) : (
             <div
@@ -62,34 +61,39 @@ export default function PostListItem({ post, index }: Props) {
           )}
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--color-muted)]">
-            <time dateTime={isoDate(post.pubDate)}>{formatDate(post.pubDate)}</time>
-            {post.tags.length > 0 && (
-              <ul className="flex flex-wrap gap-1" dir="auto">
-                {post.tags.slice(0, 3).map((tag) => (
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2 text-xs" dir="auto">
+            <time
+              dateTime={isoDate(post.pubDate)}
+              className="text-[var(--color-muted)]"
+            >
+              {formatDate(post.pubDate)}
+            </time>
+            {tags.length > 0 && (
+              <ul className="flex flex-wrap gap-1.5">
+                {tags.map((tag) => (
                   <li
                     key={tag}
-                    className="rounded-full bg-[color-mix(in_oklch,var(--color-line)_70%,transparent)] px-2 py-0.5"
+                    className="rounded-full bg-white/10 px-2 py-0.5 text-white/80"
                   >
-                    #{tag}
+                    {tag}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-          <span
-            className="font-semibold tracking-tight transition group-hover:text-[var(--color-accent)]"
+          <h3
+            className="text-xl font-semibold leading-tight tracking-tight sm:text-2xl"
             dir="auto"
           >
             {post.title}
-          </span>
-          <span
-            className="line-clamp-2 text-sm text-[var(--color-muted)]"
+          </h3>
+          <p
+            className="line-clamp-2 text-sm leading-relaxed text-[var(--color-muted)]"
             dir="auto"
           >
             {post.description}
-          </span>
+          </p>
         </div>
       </a>
     </motion.li>

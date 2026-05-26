@@ -98,7 +98,7 @@ export default function Hero() {
   return (
     <section
       dir="ltr"
-      className="relative mx-4 flex min-h-[50vh] items-center justify-center overflow-hidden rounded-2xl px-6 py-16 sm:mx-6 sm:py-24"
+      className="relative flex min-h-[40vh] items-center justify-center overflow-hidden rounded-2xl px-6 py-12 sm:py-16"
       style={{ background: '#0a0a0a' }}
     >
       <Glow phase={phase} burst={glowBurst} prefersReduced={!!prefersReduced} />
@@ -130,7 +130,7 @@ export default function Hero() {
       </div>
 
       <motion.div
-        className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-5 text-sm"
+        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-5 text-sm"
         style={{ color: 'rgba(255,255,255,0.5)' }}
         initial={false}
         animate={{ opacity: ctaVisible ? 1 : 0 }}

@@ -22,6 +22,15 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    --gh-icon: #181717;
+  }
+
+  html[data-theme="dark"] {
+    --color-paper: #0a0a0a;
+    --color-ink: oklch(0.97 0.005 270);
+    --color-muted: oklch(0.65 0.015 270);
+    --color-line: oklch(0.25 0.01 270);
+    --gh-icon: #f5f5f5;
   }
 
   body {
@@ -101,11 +110,46 @@
   }
 
   .prose-post blockquote {
-    border-inline-start: 3px solid var(--color-line);
-    padding-inline-start: 1rem;
-    margin: 1.5rem 0;
-    font-style: italic;
-    color: var(--color-muted);
+    position: relative;
+    border-inline-start: 3px solid color-mix(in oklch, var(--color-muted) 35%, transparent);
+    padding-block: 0.9rem;
+    padding-inline-end: 1.15rem;
+    padding-inline-start: 2.6rem;
+    margin: 1.6rem 0;
+    background: color-mix(in oklch, var(--color-ink) 3%, transparent);
+    border-radius: 0.5rem;
+    color: var(--color-ink);
+    font-style: normal;
+    line-height: 1.65;
+  }
+
+  .prose-post blockquote::before {
+    content: '\201C';
+    position: absolute;
+    inset-inline-start: 0.7rem;
+    top: 0.25rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: color-mix(in oklch, var(--color-muted) 50%, transparent);
+    pointer-events: none;
+  }
+
+  .prose-post blockquote > p {
+    margin: 0.4em 0;
+  }
+
+  .prose-post blockquote > p:first-child {
+    margin-top: 0;
+  }
+
+  .prose-post blockquote > p:last-child {
+    margin-bottom: 0;
+  }
+
+  .prose-post blockquote > p:first-child > strong:first-child {
+    color: var(--color-accent-2);
+    font-weight: 600;
   }
 
   .prose-post ul, .prose-post ol {
