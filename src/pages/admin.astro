@@ -369,6 +369,8 @@ const isDev = import.meta.env.DEV;
         padding: 0 !important;
         min-height: 600px;
       }
+      /* Force RTL on every block — overrides Lexical's auto dir="ltr" on
+         English-leading paragraphs. !important beats the dir attribute. */
       .mdx-editor-content p,
       .mdx-editor-content h1,
       .mdx-editor-content h2,
@@ -376,7 +378,7 @@ const isDev = import.meta.env.DEV;
       .mdx-editor-content h4,
       .mdx-editor-content li,
       .mdx-editor-content blockquote {
-        unicode-bidi: plaintext;
+        direction: rtl !important;
         text-align: start;
       }
       .mdx-editor-content h1 {
