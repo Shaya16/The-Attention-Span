@@ -8,8 +8,11 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { contentEditor } from './vite-plugin-content-editor.mjs';
 
+import cloudflare from "@astrojs/cloudflare";
+
 export default defineConfig({
   site: 'https://the-attention-span.com',
+
   integrations: [
     mdx({
       remarkPlugins: [remarkMath],
@@ -18,6 +21,7 @@ export default defineConfig({
     react(),
     sitemap(),
   ],
+
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
@@ -26,7 +30,10 @@ export default defineConfig({
       wrap: true,
     },
   },
+
   vite: {
     plugins: [tailwindcss(), contentEditor()], // dev-only admin api + uploads
   },
+
+  adapter: cloudflare()
 });
