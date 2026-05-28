@@ -23,7 +23,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   }));
 ---
 
-<BaseLayout title="The Attention Span" theme="dark">
+<BaseLayout
+  title="The Attention Span"
+  description="בלוג על Machine Learning ו-Deep Learning עם הדגמות אינטראקטיביות. אינטואיציה לפני נוסחאות, בעברית, עם דמואים שרצים בדפדפן."
+  theme="dark"
+  appendSiteName={false}
+>
   <Hero client:load slot="hero" />
 
   <section slot="wide" class="mt-8">

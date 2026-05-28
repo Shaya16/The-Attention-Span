@@ -2,21 +2,321 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="About · The Attention Span">
-  <article class="prose-post">
-    <h1>About</h1>
+<BaseLayout
+  title="About"
+  description="About Shay Avivi and The Attention Span - a blog about machine learning and deep learning with interactive in-browser demos."
+  lang="en"
+  dir="ltr"
+  theme="dark"
+>
+  <section
+    slot="hero"
+    class="about-hero relative flex min-h-[42vh] items-center justify-center overflow-hidden rounded-2xl px-6 py-14 sm:py-20"
+  >
+    <div class="about-hero__glow" aria-hidden="true">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+      <span class="blob blob-4"></span>
+    </div>
+
+    <div class="relative z-10 max-w-2xl text-center">
+      <p class="about-eyebrow">About</p>
+      <h1 class="about-name">Shay Avivi</h1>
+      <p class="about-tagline">
+        ML student. Writing about it as I learn.
+      </p>
+
+      <svg
+        width="120"
+        height="30"
+        viewBox="0 0 120 30"
+        aria-hidden="true"
+        class="about-dots"
+      >
+        <circle cx="15" cy="15" r="4" fill="var(--color-accent)" />
+        <circle cx="45" cy="15" r="4" fill="var(--color-accent-4)" />
+        <circle cx="75" cy="15" r="4" fill="var(--color-accent-2)" />
+        <circle cx="105" cy="15" r="4" fill="var(--color-accent-3)" />
+      </svg>
+    </div>
+  </section>
+
+  <article class="prose-post about-prose">
     <p>
-      I'm Shay. I'm studying machine learning and writing about it as I go.
+      The posts here lean on interactive demos. Static explanations only go so
+      far, and some ideas are easier to feel than to describe.
     </p>
     <p>
-      The posts here lean on interactive demos because static explanations only
-      go so far. If a post has a slider, a chart you can hover, or a model
-      running in your browser, it's because the idea is easier to feel than to
-      describe.
+      When there's a slider, a chart you can hover, or a model running in your
+      browser, that's why.
     </p>
     <p>
-      Reach out on <a href="https://www.linkedin.com/in/shayavivi/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      or look at the code on <a href="https://github.com/Shaya16" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      I'm writing as I learn, so if something is wrong or missing, I'd like to
+      hear about it.
     </p>
   </article>
+
+  <section class="about-links" aria-label="Find me elsewhere">
+    <a
+      class="link-card link-card--linkedin"
+      href="https://www.linkedin.com/in/shayavivi/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="link-card__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+        </svg>
+      </span>
+      <span class="link-card__body">
+        <span class="link-card__label">LinkedIn</span>
+        <span class="link-card__hint">Professional profile</span>
+      </span>
+    </a>
+
+    <a
+      class="link-card link-card--github"
+      href="https://github.com/Shaya16"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="link-card__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.373 0 12c0 5.303 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.31.468-2.381 1.235-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.3 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.653 1.652.242 2.873.119 3.176.77.84 1.234 1.911 1.234 3.221 0 4.609-2.806 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .321.218.694.825.576C20.565 21.796 24 17.298 24 12c0-6.627-5.373-12-12-12z" />
+        </svg>
+      </span>
+      <span class="link-card__body">
+        <span class="link-card__label">GitHub</span>
+        <span class="link-card__hint">Code and experiments</span>
+      </span>
+    </a>
+
+    <a class="link-card link-card--rss" href="/rss.xml">
+      <span class="link-card__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20A2.18 2.18 0 0 1 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z" />
+        </svg>
+      </span>
+      <span class="link-card__body">
+        <span class="link-card__label">RSS</span>
+        <span class="link-card__hint">Subscribe to updates</span>
+      </span>
+    </a>
+  </section>
 </BaseLayout>
+
+<style>
+  .about-hero {
+    background: #0a0a0a;
+    isolation: isolate;
+  }
+
+  .about-hero__glow {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .about-hero__glow .blob {
+    position: absolute;
+    border-radius: 9999px;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity;
+  }
+
+  .blob-1 {
+    width: 70vmin;
+    height: 70vmin;
+    left: 30%;
+    top: 35%;
+    background: radial-gradient(closest-side, var(--color-accent), transparent 70%);
+    animation: drift-1 14s ease-in-out infinite;
+  }
+
+  .blob-2 {
+    width: 55vmin;
+    height: 55vmin;
+    left: 72%;
+    top: 62%;
+    background: radial-gradient(closest-side, var(--color-accent-2), transparent 70%);
+    animation: drift-2 17s ease-in-out infinite;
+  }
+
+  .blob-3 {
+    width: 45vmin;
+    height: 45vmin;
+    left: 70%;
+    top: 22%;
+    background: radial-gradient(closest-side, var(--color-accent-3), transparent 70%);
+    animation: drift-3 20s ease-in-out infinite;
+  }
+
+  .blob-4 {
+    width: 50vmin;
+    height: 50vmin;
+    left: 28%;
+    top: 70%;
+    background: radial-gradient(closest-side, var(--color-accent-4), transparent 70%);
+    animation: drift-4 23s ease-in-out infinite;
+  }
+
+  @keyframes drift-1 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0, 0); opacity: 0.10; }
+    50%      { transform: translate(-50%, -50%) translate(2vw, -1.5vw); opacity: 0.15; }
+  }
+  @keyframes drift-2 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0, 0); opacity: 0.09; }
+    50%      { transform: translate(-50%, -50%) translate(-2.2vw, 1.4vw); opacity: 0.14; }
+  }
+  @keyframes drift-3 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0, 0); opacity: 0.08; }
+    50%      { transform: translate(-50%, -50%) translate(1.6vw, 1.8vw); opacity: 0.12; }
+  }
+  @keyframes drift-4 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0, 0); opacity: 0.09; }
+    50%      { transform: translate(-50%, -50%) translate(-1.4vw, -1.6vw); opacity: 0.13; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blob-1, .blob-2, .blob-3, .blob-4 {
+      animation: none;
+      opacity: 0.10;
+    }
+  }
+
+  .about-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--color-muted) 90%, transparent);
+    margin: 0 0 1rem;
+  }
+
+  .about-name {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .about-tagline {
+    margin: 1.1rem auto 0;
+    max-width: 38ch;
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    line-height: 1.55;
+    color: color-mix(in oklch, var(--color-ink) 78%, transparent);
+  }
+
+  .about-dots {
+    display: block;
+    margin: 1.75rem auto 0;
+  }
+
+  .about-prose {
+    margin-top: 3rem;
+  }
+
+  .about-prose p {
+    color: color-mix(in oklch, var(--color-ink) 88%, transparent);
+  }
+
+  .about-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 640px) {
+    .about-links {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.85rem;
+    background: color-mix(in oklch, var(--color-paper) 75%, transparent);
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .link-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .link-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.55rem;
+    background: color-mix(in oklch, var(--color-line) 70%, transparent);
+    color: var(--color-ink);
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .link-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .link-card__label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.98rem;
+    line-height: 1.2;
+  }
+
+  .link-card__hint {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    line-height: 1.2;
+  }
+
+  .link-card--linkedin:hover {
+    border-color: color-mix(in oklch, #0A66C2 60%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklch, #0A66C2 35%, transparent),
+                0 14px 30px -18px color-mix(in oklch, #0A66C2 65%, transparent);
+  }
+  .link-card--linkedin:hover .link-card__icon {
+    background: color-mix(in oklch, #0A66C2 22%, transparent);
+    color: #4DA3E8;
+  }
+
+  .link-card--github:hover {
+    border-color: color-mix(in oklch, var(--color-ink) 55%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-ink) 30%, transparent),
+                0 14px 30px -18px color-mix(in oklch, var(--color-ink) 50%, transparent);
+  }
+  .link-card--github:hover .link-card__icon {
+    background: color-mix(in oklch, var(--color-ink) 18%, transparent);
+    color: var(--color-ink);
+  }
+
+  .link-card--rss:hover {
+    border-color: color-mix(in oklch, #F26522 60%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklch, #F26522 35%, transparent),
+                0 14px 30px -18px color-mix(in oklch, #F26522 65%, transparent);
+  }
+  .link-card--rss:hover .link-card__icon {
+    background: color-mix(in oklch, #F26522 22%, transparent);
+    color: #F26522;
+  }
+</style>

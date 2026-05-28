@@ -9,7 +9,7 @@ import rehypeKatex from 'rehype-katex';
 import { contentEditor } from './vite-plugin-content-editor.mjs';
 
 export default defineConfig({
-  site: 'https://the-attention-span.pages.dev',
+  site: 'https://the-attention-span.com',
   integrations: [
     mdx({
       remarkPlugins: [remarkMath],
