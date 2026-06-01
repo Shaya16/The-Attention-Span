@@ -1,0 +1,219 @@
+---
+/**
+ * Static (non-interactive) diagram of the toy network from the numerical
+ * example: x --(×w₁)--> z --(×w₂)--> ŷ --(ŷ−y)²--> L. Pure inline SVG, renders
+ * server-side, ships zero JS. Forward-only on purpose — it anchors the network's
+ * shape right under the example; the gradients (the payoff) are derived in the
+ * text and explored in the interactive <BackpropGraph /> further down.
+ *
+ * Themed with the site tokens (--color-*) to match the other widgets. Defaults
+ * match the worked example; override via props if reused elsewhere.
+ */
+interface Props {
+  x?: number;
+  w1?: number;
+  w2?: number;
+  y?: number;
+}
+const { x = 2, w1 = 3, w2 = 0.5, y = 6 } = Astro.props;
+
+const z = w1 * x;
+const yhat = w2 * z;
+const L = (yhat - y) ** 2;
+
+// pretty-print: trim -0, use a proper minus sign, drop trailing zeros
+const num = (n: number) => {
+  const v = Object.is(n, -0) ? 0 : n;
+  const s = (Math.round(v * 1000) / 1000).toString();
+  return s.replace('-', '−');
+};
+---
+
+<figure class="nd not-prose">
+  <figcaption class="nd-title">
+    <span class="nd-dot"></span>הרשת מהדוגמה
+  </figcaption>
+
+  <div class="nd-card">
+    <svg viewBox="0 0 560 182" role="img" aria-label="תרשים הרשת: x עובר דרך שני כפלים ל-ŷ; z הוא השכבה הנסתרת, וממנו מחושב ה-loss" class="nd-svg">
+      <defs>
+        <marker id="nd-head" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="8" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" class="nd-arrow-head" />
+        </marker>
+        <marker id="nd-head-loss" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="8" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" class="nd-arrow-head-loss" />
+        </marker>
+      </defs>
+
+      <!-- hidden-layer highlight (drawn first, behind everything) -->
+      <rect x="158" y="50" width="94" height="80" rx="12" class="nd-hidden-box" />
+      <text x="205" y="152" class="nd-hidden-label">שכבה נסתרת</text>
+
+      <!-- forward edges (weight layers, left → right) -->
+      <line x1="88" y1="90" x2="170" y2="90" class="nd-edge" marker-end="url(#nd-head)" />
+      <line x1="238" y1="90" x2="320" y2="90" class="nd-edge" marker-end="url(#nd-head)" />
+      <!-- loss step (not a layer): compare ŷ to the target -->
+      <line x1="388" y1="90" x2="470" y2="90" class="nd-edge-loss" marker-end="url(#nd-head-loss)" />
+
+      <!-- op labels above the edges -->
+      <text x="120" y="60" class="nd-op">× w₁ = {num(w1)}</text>
+      <text x="293" y="60" class="nd-op">× w₂ = {num(w2)}</text>
+      <text x="429" y="60" class="nd-op nd-op-loss">(ŷ − y)²</text>
+
+      <!-- nodes -->
+      <g>
+        <circle cx="55" cy="90" r="30" class="nd-node" />
+        <text x="55" y="86" class="nd-sym">x</text>
+        <text x="55" y="106" class="nd-val">{num(x)}</text>
+      </g>
+      <g>
+        <circle cx="205" cy="90" r="30" class="nd-node" />
+        <text x="205" y="86" class="nd-sym">z</text>
+        <text x="205" y="106" class="nd-val">{num(z)}</text>
+      </g>
+      <g>
+        <circle cx="355" cy="90" r="30" class="nd-node" />
+        <text x="355" y="86" class="nd-sym">ŷ</text>
+        <text x="355" y="106" class="nd-val">{num(yhat)}</text>
+      </g>
+      <g>
+        <circle cx="505" cy="90" r="30" class="nd-node nd-node-loss" />
+        <text x="505" y="86" class="nd-sym nd-sym-loss">L</text>
+        <text x="505" y="106" class="nd-val nd-val-loss">{num(L)}</text>
+      </g>
+
+      <!-- target, feeding the loss -->
+      <text x="429" y="128" class="nd-tgt">y = {num(y)}</text>
+    </svg>
+  </div>
+
+  <p class="nd-cap">
+    הקלט <span class="nd-mono">x</span> עובר דרך שתי שכבות כפל (×&nbsp;w₁ ואז ×&nbsp;w₂) עד לפלט <span class="nd-mono">ŷ</span>. ערך הביניים <span class="nd-mono">z</span> הוא השכבה הנסתרת (במסגרת המקווקוות). החץ המקווקו האדום אינו שכבה אלא חישוב ה-loss — השוואת <span class="nd-mono">ŷ</span> לערך הנכון <span class="nd-mono">y</span>. זה ה-forward pass שנפרק עכשיו צעד-צעד.
+  </p>
+</figure>
+
+<style>
+  .nd {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--color-paper) 75%, var(--color-line) 25%);
+  }
+  .nd-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+  }
+  .nd-dot {
+    display: inline-block;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: var(--color-accent);
+  }
+  .nd-card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
+  .nd-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    direction: ltr; /* math/data flow stays LTR even on an RTL page */
+  }
+
+  .nd-node {
+    fill: white;
+    stroke: var(--color-line);
+    stroke-width: 1.5;
+  }
+  .nd-node-loss {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+  }
+  .nd-sym {
+    fill: var(--color-ink);
+    font: 700 18px ui-monospace, monospace;
+    text-anchor: middle;
+  }
+  .nd-sym-loss {
+    fill: white;
+  }
+  .nd-val {
+    fill: var(--color-accent-2);
+    font: 600 12px ui-monospace, monospace;
+    text-anchor: middle;
+  }
+  .nd-val-loss {
+    fill: white;
+  }
+  .nd-op {
+    fill: var(--color-muted);
+    font: 13px ui-monospace, monospace;
+    text-anchor: middle;
+  }
+  .nd-tgt {
+    fill: var(--color-muted);
+    font: 12px ui-monospace, monospace;
+    text-anchor: middle;
+  }
+
+  .nd-edge {
+    stroke: var(--color-muted);
+    stroke-width: 1.6;
+    fill: none;
+  }
+  .nd-arrow-head {
+    fill: var(--color-muted);
+  }
+
+  /* loss step — dashed + red, to mark it as the loss measurement, not a layer */
+  .nd-edge-loss {
+    stroke: var(--color-accent);
+    stroke-width: 1.6;
+    fill: none;
+    stroke-dasharray: 5 4;
+  }
+  .nd-arrow-head-loss {
+    fill: var(--color-accent);
+  }
+  .nd-op-loss {
+    fill: var(--color-accent);
+  }
+
+  /* hidden-layer highlight */
+  .nd-hidden-box {
+    fill: none;
+    stroke: var(--color-accent-2);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+    opacity: 0.85;
+  }
+  .nd-hidden-label {
+    fill: var(--color-accent-2);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-anchor: middle;
+  }
+
+  .nd-cap {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  .nd-mono {
+    font-family: ui-monospace, monospace;
+    font-style: normal;
+    color: var(--color-ink);
+  }
+</style>

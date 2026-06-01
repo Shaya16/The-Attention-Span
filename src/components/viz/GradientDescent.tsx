@@ -4,13 +4,17 @@ import DemoFrame from './DemoFrame';
 /**
  * GradientDescent
  *
- * Click anywhere on the loss surface to drop a starting point and watch
- * the chosen optimizer walk toward the minimum. Toggle between SGD,
- * Momentum, and Adam. Adjust learning rate.
+ * Tap anywhere on the loss surface to drop a starting point and watch the
+ * chosen optimizer walk toward a minimum. A single moving dot with a direction
+ * arrow shows which way it's stepping (downhill); the green bullseyes mark the
+ * minima (the targets). Toggle SGD / Momentum / Adam, adjust the learning rate.
  *
- * Loss function: f(x,y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2 (scaled)
- * - Himmelblau's, which has multiple minima, useful for showing how
- * starting point matters.
+ * Loss function: Himmelblau's, f(x,y) = (x²+y−11)² + (x+y²−7)² (scaled), which
+ * has four minima — useful for showing that the starting point matters.
+ *
+ * Mobile: the surface keeps a fixed aspect ratio and scales uniformly, and tap
+ * coordinates are rescaled from displayed CSS pixels into internal units, so
+ * taps land correctly at any width.
  */
 
 type Optimizer = 'sgd' | 'momentum' | 'adam';
@@ -20,6 +24,14 @@ const H = 320;
 const SCALE = 30; // pixels per unit
 const CX = W / 2;
 const CY = H / 2;
+
+// the four minima of Himmelblau's function (all f = 0)
+const MINIMA: [number, number][] = [
+  [3.0, 2.0],
+  [-2.805118, 3.131312],
+  [-3.77931, -3.283186],
+  [3.584428, -1.848126],
+];
 
 // Himmelblau, normalized
 function loss(x: number, y: number): number {
@@ -44,6 +56,7 @@ export default function GradientDescent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [opt, setOpt] = useState<Optimizer>('momentum');
   const [lr, setLr] = useState(0.05);
+  const [start, setStart] = useState<[number, number] | null>([-5, 4.5]); // seed a demo run
   const [path, setPath] = useState<[number, number][]>([]);
   const animRef = useRef<number | null>(null);
 
@@ -82,11 +95,15 @@ export default function GradientDescent() {
     ctx.putImageData(img, 0, 0);
   }, []);
 
-  // Run optimizer when path is reset
+  // Run the optimizer from `start`. Depends on start/opt/lr only — NOT on path —
+  // so the per-frame setPath updates don't re-trigger and cancel the animation.
   useEffect(() => {
-    if (path.length !== 1) return;
+    if (!start) {
+      setPath([]);
+      return;
+    }
 
-    let [x, y] = path[0];
+    let [x, y] = start;
     let vx = 0,
       vy = 0;
     // Adam state
@@ -100,6 +117,7 @@ export default function GradientDescent() {
     const eps = 1e-8;
 
     const trail: [number, number][] = [[x, y]];
+    setPath([[x, y]]);
 
     const step = () => {
       t++;
@@ -138,33 +156,50 @@ export default function GradientDescent() {
     return () => {
       if (animRef.current !== null) cancelAnimationFrame(animRef.current);
     };
-  }, [path.length === 1 ? path[0]?.join(',') : null, opt, lr]);
+  }, [start, opt, lr]);
 
+  // tap / click → rescale from displayed CSS px into internal units, then drop a start
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
-    const [x, y] = pxToWorld(px, py);
-    setPath([[x, y]]);
+    if (rect.width === 0 || rect.height === 0) return;
+    const px = (e.clientX - rect.left) * (W / rect.width);
+    const py = (e.clientY - rect.top) * (H / rect.height);
+    setStart(pxToWorld(px, py));
   };
 
   const pathPx = path.map(([x, y]) => worldToPx(x, y));
+  const lead = pathPx[pathPx.length - 1];
+  const prev = pathPx[pathPx.length - 2];
+
+  // direction arrow: normalized step direction from the leading dot
+  let arrow: { x1: number; y1: number; x2: number; y2: number } | null = null;
+  if (lead && prev) {
+    const dx = lead[0] - prev[0];
+    const dy = lead[1] - prev[1];
+    const len = Math.hypot(dx, dy);
+    if (len > 0.4) {
+      const L = 26;
+      arrow = {
+        x1: lead[0],
+        y1: lead[1],
+        x2: lead[0] + (dx / len) * L,
+        y2: lead[1] + (dy / len) * L,
+      };
+    }
+  }
 
   return (
     <DemoFrame
-      title="Gradient descent"
-      caption="Click anywhere on the surface to drop a starting point. Multiple minima - starting point matters."
+      title="Gradient Descent — ירידה למינימום"
+      caption="הקישו בכל מקום על המשטח כדי להפיל נקודת התחלה, וצפו באופטימייזר יורד במורד. החץ מראה את כיוון הירידה, והטבעות הירוקות הן המינימומים — היעד. יש כמה מינימומים, אז נקודת ההתחלה קובעת לאן מגיעים."
     >
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-3 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-sm" dir="rtl">
           <div className="flex rounded-lg border border-[var(--color-line)] bg-white p-0.5">
             {(['sgd', 'momentum', 'adam'] as Optimizer[]).map((o) => (
               <button
                 key={o}
-                onClick={() => {
-                  setOpt(o);
-                  setPath([]);
-                }}
+                onClick={() => setOpt(o)}
                 className="rounded-md px-3 py-1 font-mono text-xs transition"
                 style={{
                   background: opt === o ? 'var(--color-ink)' : 'transparent',
@@ -176,75 +211,138 @@ export default function GradientDescent() {
             ))}
           </div>
           <label className="flex items-center gap-2">
-            <span className="text-[var(--color-muted)]">lr</span>
+            <span className="font-mono text-xs text-[var(--color-muted)]">lr</span>
             <input
               type="range"
               min="0.005"
               max="0.2"
               step="0.005"
               value={lr}
-              onChange={(e) => {
-                setLr(parseFloat(e.target.value));
-                setPath([]);
-              }}
-              className="w-32"
+              onChange={(e) => setLr(parseFloat(e.target.value))}
+              className="h-9 w-28 cursor-pointer accent-[var(--color-accent)] sm:w-32"
+              aria-label="learning rate"
             />
-            <span className="font-mono text-xs tabular-nums">{lr.toFixed(3)}</span>
+            <span className="w-12 font-mono text-xs tabular-nums" dir="ltr">
+              {lr.toFixed(3)}
+            </span>
           </label>
           <button
-            onClick={() => setPath([])}
-            className="rounded-md border border-[var(--color-line)] bg-white px-3 py-1 text-xs hover:border-[var(--color-accent)]"
+            onClick={() => setStart(null)}
+            className="rounded-md border border-[var(--color-line)] bg-white px-3 py-1 text-xs transition hover:border-[var(--color-accent)]"
           >
-            reset
+            איפוס
           </button>
         </div>
 
         <div
-          className="relative cursor-crosshair overflow-hidden rounded-lg border border-[var(--color-line)]"
-          style={{ width: W, height: H, maxWidth: '100%' }}
+          className="relative w-full cursor-crosshair touch-manipulation select-none overflow-hidden rounded-lg border border-[var(--color-line)]"
+          style={{ maxWidth: W, aspectRatio: `${W} / ${H}` }}
           onClick={handleClick}
         >
           <canvas
             ref={canvasRef}
             width={W}
             height={H}
-            style={{ width: '100%', height: '100%', display: 'block' }}
+            className="block h-full w-full"
           />
-          {pathPx.length > 1 && (
-            <svg
-              className="pointer-events-none absolute inset-0"
-              viewBox={`0 0 ${W} ${H}`}
-              preserveAspectRatio="none"
-            >
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox={`0 0 ${W} ${H}`}
+          >
+            <defs>
+              <marker
+                id="gd-arrow"
+                viewBox="0 0 10 10"
+                markerWidth="7"
+                markerHeight="7"
+                refX="7"
+                refY="5"
+                orient="auto"
+                markerUnits="userSpaceOnUse"
+              >
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-ink)" />
+              </marker>
+            </defs>
+
+            {/* minima — the targets */}
+            {MINIMA.map(([mx, my], i) => {
+              const [px, py] = worldToPx(mx, my);
+              return (
+                <g key={i}>
+                  <circle cx={px} cy={py} r={9} fill="white" opacity={0.55} />
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={8}
+                    fill="none"
+                    stroke="var(--color-accent-3)"
+                    strokeWidth={2}
+                  />
+                  <circle cx={px} cy={py} r={2.5} fill="var(--color-accent-3)" />
+                </g>
+              );
+            })}
+
+            {/* trail */}
+            {pathPx.length > 1 && (
               <polyline
                 points={pathPx.map((p) => p.join(',')).join(' ')}
                 fill="none"
                 stroke="var(--color-ink)"
-                strokeWidth="1.5"
-                opacity="0.8"
+                strokeWidth={1.5}
+                opacity={0.35}
               />
-              {pathPx.map(([px, py], i) => (
-                <circle
-                  key={i}
-                  cx={px}
-                  cy={py}
-                  r={i === 0 ? 5 : i === pathPx.length - 1 ? 4 : 1.5}
-                  fill={
-                    i === 0
-                      ? 'var(--color-accent)'
-                      : i === pathPx.length - 1
-                        ? 'var(--color-accent-3)'
-                        : 'var(--color-ink)'
-                  }
-                />
-              ))}
-            </svg>
-          )}
+            )}
+
+            {/* direction arrow */}
+            {arrow && (
+              <line
+                x1={arrow.x1}
+                y1={arrow.y1}
+                x2={arrow.x2}
+                y2={arrow.y2}
+                stroke="var(--color-ink)"
+                strokeWidth={2.5}
+                markerEnd="url(#gd-arrow)"
+              />
+            )}
+
+            {/* current point */}
+            {lead && (
+              <>
+                <circle cx={lead[0]} cy={lead[1]} r={6.5} fill="white" opacity={0.8} />
+                <circle cx={lead[0]} cy={lead[1]} r={5} fill="var(--color-ink)" />
+              </>
+            )}
+          </svg>
+
           {path.length === 0 && (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-[var(--color-muted)]">
-              click to start
+              הקישו כדי להתחיל
             </div>
           )}
+        </div>
+
+        {/* legend */}
+        <div
+          className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[var(--color-muted)]"
+          dir="rtl"
+        >
+          <span className="flex items-center gap-1.5">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full border-2"
+              style={{ borderColor: 'var(--color-accent-3)' }}
+            />
+            מינימום (היעד)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-ink)]" />
+            הנקודה הנוכחית
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-[var(--color-ink)]">→</span>
+            כיוון הירידה
+          </span>
         </div>
       </div>
     </DemoFrame>

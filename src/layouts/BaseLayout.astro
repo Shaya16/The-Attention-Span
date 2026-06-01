@@ -15,6 +15,7 @@ interface Props {
   dir?: 'rtl' | 'ltr';
   noindex?: boolean;
   appendSiteName?: boolean;
+  mainClass?: string;
 }
 
 const {
@@ -30,6 +31,7 @@ const {
   dir = 'rtl',
   noindex = false,
   appendSiteName = true,
+  mainClass = 'max-w-4xl',
 } = Astro.props;
 
 const pageTitle = title ?? SITE.name;
@@ -117,7 +119,7 @@ const jsonLd =
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
     />
 
     <meta property="og:type" content={type} />
@@ -229,7 +231,7 @@ const jsonLd =
       <slot name="wide" />
     </div>
 
-    <div class="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-12">
+    <div class={`mx-auto ${mainClass} px-5 py-8 sm:px-6 sm:py-12`}>
       <main>
         <slot />
       </main>

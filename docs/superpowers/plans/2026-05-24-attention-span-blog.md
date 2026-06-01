@@ -418,7 +418,7 @@ export default function Hero() {
       <motion.p
         {...fadeUp(0.12, 0.4)}
         className="max-w-md text-lg"
-        style={{ color: 'var(--color-muted)' }}
+        style={{ fontFamily: 'Inter', color: 'var(--color-muted)' }}
       >
         Machine learning, explained before your context window runs out.
       </motion.p>

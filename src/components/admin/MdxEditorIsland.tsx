@@ -94,6 +94,20 @@ const BLOG_COMPONENTS: JsxComponentDescriptor[] = [
     defaultExport: true,
     Editor: ExplainerEditor,
   },
+  {
+    name: 'BackpropDiagram',
+    kind: 'flow',
+    source: '../../components/blog/BackpropDiagram.astro',
+    props: [
+      { name: 'x', type: 'string' },
+      { name: 'w1', type: 'string' },
+      { name: 'w2', type: 'string' },
+      { name: 'y', type: 'string' },
+    ],
+    hasChildren: false,
+    defaultExport: true,
+    Editor: VizEditor,
+  },
 ];
 
 // Viz components - heavy interactive React widgets. Render as placeholder chips
@@ -109,6 +123,12 @@ const VIZ_NAMES = [
   'WeightedSum',
   'ModeCollapse',
   'PPOClip',
+  // training / backprop series (how-a-model-learns)
+  'TrainingLoop',
+  'BackpropGraph',
+  'ParameterDimmers',
+  'PretrainFinetune',
+  'LossLandscape',
 ];
 
 const VIZ_COMPONENTS: JsxComponentDescriptor[] = VIZ_NAMES.map((name) => ({

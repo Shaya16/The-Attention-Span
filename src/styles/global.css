@@ -2,8 +2,8 @@
 @import "katex/dist/katex.min.css";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Assistant", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Assistant", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --color-ink: oklch(0.27 0.04 270);
@@ -45,7 +45,7 @@
 
 @layer components {
   .prose-post {
-    max-width: 68ch;
+    max-width: 791px;
     font-size: 1.0625rem;
     line-height: 1.75;
   }
