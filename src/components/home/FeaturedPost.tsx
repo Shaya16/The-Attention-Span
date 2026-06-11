@@ -86,6 +86,11 @@ export default function FeaturedPost({ post }: Props) {
         >
           {post.title}
         </h3>
+        {post.subheading && (
+          <span className="subheading-badge subheading-badge--card self-start" dir="auto">
+            <span>{post.subheading}</span>
+          </span>
+        )}
         <p
           className="text-base leading-relaxed text-[var(--color-muted)]"
           dir="auto"

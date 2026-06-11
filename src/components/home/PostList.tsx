@@ -11,6 +11,7 @@ export interface PostImage {
 export interface Post {
   slug: string;
   title: string;
+  subheading?: string;
   description: string;
   pubDate: Date | string;
   tags: string[];

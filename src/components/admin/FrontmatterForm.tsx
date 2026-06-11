@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 
 export interface Frontmatter {
   title?: string;
+  subheading?: string;
   description?: string;
   pubDate?: string;
   updatedDate?: string;
@@ -17,7 +18,7 @@ interface Props {
   onChange: (next: Frontmatter) => void;
 }
 
-const KNOWN_FIELDS = ['title', 'description', 'pubDate', 'updatedDate', 'tags', 'draft', 'image'];
+const KNOWN_FIELDS = ['title', 'subheading', 'description', 'pubDate', 'updatedDate', 'tags', 'draft', 'image'];
 
 export default function FrontmatterForm({ value, currentPath, onChange }: Props) {
   const [tagDraft, setTagDraft] = useState('');
@@ -84,7 +85,7 @@ export default function FrontmatterForm({ value, currentPath, onChange }: Props)
   const extraFields = Object.keys(value).filter((k) => !KNOWN_FIELDS.includes(k));
   const [open, setOpen] = useState(true);
   const filledCount = [
-    value.title, value.description, value.pubDate, value.updatedDate,
+    value.title, value.subheading, value.description, value.pubDate, value.updatedDate,
     (value.tags?.length ?? 0) > 0, value.draft, image.src,
   ].filter(Boolean).length;
 
@@ -110,6 +111,18 @@ export default function FrontmatterForm({ value, currentPath, onChange }: Props)
           type="text"
           value={value.title ?? ''}
           onChange={(e) => update({ title: e.target.value })}
+          dir="rtl"
+        />
+      </div>
+
+      <div className="fm-row">
+        <label htmlFor="fm-subheading">תת-כותרת</label>
+        <input
+          id="fm-subheading"
+          type="text"
+          value={value.subheading ?? ''}
+          placeholder="למשל: הסבר מלא על tokenization"
+          onChange={(e) => update({ subheading: e.target.value || undefined })}
           dir="rtl"
         />
       </div>

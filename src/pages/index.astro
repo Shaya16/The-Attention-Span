@@ -9,6 +9,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .map((p) => ({
     slug: p.id,
     title: p.data.title,
+    subheading: p.data.subheading,
     description: p.data.description,
     pubDate: p.data.pubDate,
     tags: p.data.tags,

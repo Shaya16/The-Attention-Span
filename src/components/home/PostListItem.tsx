@@ -88,6 +88,11 @@ export default function PostListItem({ post, index }: Props) {
           >
             {post.title}
           </h3>
+          {post.subheading && (
+            <span className="subheading-badge subheading-badge--card self-start" dir="auto">
+              <span>{post.subheading}</span>
+            </span>
+          )}
           <p
             className="line-clamp-2 text-sm leading-relaxed text-[var(--color-muted)]"
             dir="auto"

@@ -13,7 +13,7 @@ interface Props {
 }
 
 const { post, readingTime, headings = [] } = Astro.props;
-const { title, description, pubDate, updatedDate, tags, image } = post.data;
+const { title, subheading, description, pubDate, updatedDate, tags, image } = post.data;
 
 const dateStr = pubDate.toLocaleDateString('he-IL', {
   year: 'numeric',
@@ -50,6 +50,11 @@ const canonicalPostUrl = new URL(`/posts/${post.id}/`, SITE.url).href;
 
   <article class="prose-post" dir="rtl" lang="he">
     <h1 dir="auto">{title}</h1>
+    {subheading && (
+      <p class="!mb-4 !mt-0" dir="auto">
+        <span class="subheading-badge"><span>{subheading}</span></span>
+      </p>
+    )}
     <p class="post-subtitle !mb-4" dir="rtl">{description}</p>
 
     <div class="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--color-muted)]">
