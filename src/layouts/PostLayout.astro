@@ -2,14 +2,17 @@
 import BaseLayout from './BaseLayout.astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import { SITE } from '../lib/site';
+import TableOfContents from '../components/blog/TableOfContents.astro';
 
 interface Props {
   post: CollectionEntry<'blog'>;
   readingTime?: string;
+  headings?: MarkdownHeading[];
 }
 
-const { post, readingTime } = Astro.props;
+const { post, readingTime, headings = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, tags, image } = post.data;
 
 const dateStr = pubDate.toLocaleDateString('he-IL', {
@@ -85,6 +88,8 @@ const canonicalPostUrl = new URL(`/posts/${post.id}/`, SITE.url).href;
     ) : (
       <div class="post-cover post-cover--placeholder" aria-hidden="true"></div>
     )}
+
+    <TableOfContents headings={headings} />
 
     <slot />
   </article>

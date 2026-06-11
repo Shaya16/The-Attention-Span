@@ -1,0 +1,117 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// Only h2/h3 make a useful outline. Skip h1 (the post title) and deeper levels.
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const show = items.length >= 3;
+---
+
+{show && (
+  <>
+    <div class="reading-progress" aria-hidden="true">
+      <div class="reading-progress__fill" data-progress-fill></div>
+    </div>
+
+    {/* Desktop: a minimal line rail in the start-side margin. Ticks per
+        section; the active one widens + colors and its label stays visible,
+        all labels reveal on hover. */}
+    <nav class="toc-rail" aria-label="תוכן עניינים" data-toc>
+      <ul class="toc-rail__list">
+        {items.map((h) => (
+          <li class={`toc-rail__item toc-rail__item--h${h.depth}`}>
+            <a class="toc-rail__link" href={`#${h.slug}`} data-toc-link={h.slug}>
+              <span class="toc-rail__tick" aria-hidden="true"></span>
+              <span class="toc-rail__label">{h.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    {/* Mobile/tablet: a light, borderless disclosure. */}
+    <details class="toc-inline" data-toc>
+      <summary class="toc-inline__summary">
+        <span>תוכן עניינים</span>
+        <span class="toc-inline__chevron" aria-hidden="true">▾</span>
+      </summary>
+      <ul class="toc-inline__list">
+        {items.map((h) => (
+          <li class={`toc-inline__item toc-inline__item--h${h.depth}`}>
+            <a class="toc-inline__link" href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
+          </li>
+        ))}
+      </ul>
+    </details>
+
+    <script>
+      (() => {
+        const article = document.querySelector('article.prose-post');
+        const fill = document.querySelector<HTMLElement>('[data-progress-fill]');
+        const links = Array.from(
+          document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')
+        );
+        if (!article) return;
+
+        const headingEls = Array.from(
+          article.querySelectorAll<HTMLElement>('h2[id], h3[id]')
+        );
+
+        // Active section = the last heading whose top has passed the trigger line.
+        const TRIGGER = 120;
+        let activeSlug = '';
+        const setActive = (slug: string) => {
+          if (slug === activeSlug) return;
+          activeSlug = slug;
+          links.forEach((l) =>
+            l.classList.toggle('is-active', l.dataset.tocLink === slug)
+          );
+        };
+
+        let ticking = false;
+        const update = () => {
+          ticking = false;
+
+          // reading progress
+          if (fill) {
+            const rect = article.getBoundingClientRect();
+            const total = rect.height - window.innerHeight;
+            const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+            fill.style.transform = `scaleX(${p})`;
+          }
+
+          // current section
+          let current = headingEls[0]?.id ?? '';
+          for (const h of headingEls) {
+            if (h.getBoundingClientRect().top <= TRIGGER) current = h.id;
+            else break;
+          }
+          setActive(current);
+        };
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
+
+        // Close the mobile disclosure after picking a heading.
+        const inline = document.querySelector<HTMLDetailsElement>('details.toc-inline');
+        links.forEach((l) =>
+          l.addEventListener('click', () => {
+            if (inline && window.matchMedia('(max-width: 1279px)').matches) {
+              inline.open = false;
+            }
+          })
+        );
+      })();
+    </script>
+  </>
+)}

@@ -67,6 +67,7 @@
     margin-top: 3rem;
     margin-bottom: 1rem;
     line-height: 1.25;
+    scroll-margin-top: 5rem;
   }
 
   .prose-post h3 {
@@ -74,6 +75,7 @@
     font-size: 1.25rem;
     margin-top: 2rem;
     margin-bottom: 0.75rem;
+    scroll-margin-top: 5rem;
   }
 
   .prose-post p {
@@ -235,6 +237,186 @@
     border: 1px solid var(--color-line);
     border-radius: 1rem;
     background: color-mix(in srgb, var(--color-paper) 75%, var(--color-line) 25%);
+  }
+
+  /* ---------- Reading progress bar ---------- */
+  .reading-progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 3px;
+    z-index: 60;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  .reading-progress__fill {
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: right center;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+    will-change: transform;
+  }
+
+  /* ---------- Table of contents: desktop line rail ---------- */
+  .toc-rail {
+    display: none;
+  }
+
+  @media (min-width: 1280px) {
+    .toc-rail {
+      display: block;
+      position: fixed;
+      inset-block-start: 7rem;
+      /* Sit in the start-side (right, RTL) margin beside the 791px column. */
+      inset-inline-start: max(1rem, calc((100vw - 791px) / 2 - 288px));
+      width: 264px;
+      max-height: calc(100vh - 10rem);
+      overflow: hidden auto;
+    }
+  }
+
+  .toc-rail__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .toc-rail .toc-rail__link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.32rem 0;
+    text-decoration: none;
+  }
+
+  .toc-rail__tick {
+    flex: 0 0 auto;
+    display: block;
+    height: 2px;
+    width: 22px;
+    border-radius: 2px;
+    background: color-mix(in oklch, var(--color-muted) 45%, transparent);
+    transition: width 0.22s ease, background 0.22s ease;
+  }
+
+  .toc-rail__item--h3 .toc-rail__tick {
+    width: 13px;
+  }
+
+  .toc-rail__label {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.22s ease, transform 0.22s ease, color 0.22s ease;
+  }
+
+  /* Reveal every label while the rail is hovered. */
+  .toc-rail:hover .toc-rail__label {
+    opacity: 1;
+    transform: none;
+  }
+
+  .toc-rail .toc-rail__link:hover .toc-rail__tick {
+    width: 30px;
+    background: var(--color-ink);
+  }
+
+  .toc-rail .toc-rail__link:hover .toc-rail__label {
+    color: var(--color-ink);
+  }
+
+  /* Active: tick widens + accent; its label stays visible. */
+  .toc-rail .toc-rail__link.is-active .toc-rail__tick {
+    width: 34px;
+    background: var(--color-accent);
+  }
+
+  .toc-rail .toc-rail__link.is-active .toc-rail__label {
+    opacity: 1;
+    transform: none;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  /* ---------- Table of contents: mobile disclosure ---------- */
+  .toc-inline {
+    margin: 0 0 2rem;
+  }
+
+  @media (min-width: 1280px) {
+    .toc-inline {
+      display: none;
+    }
+  }
+
+  .toc-inline__summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    list-style: none;
+    padding: 0.3rem 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .toc-inline__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc-inline__chevron {
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+  }
+
+  .toc-inline[open] .toc-inline__chevron {
+    transform: rotate(180deg);
+  }
+
+  .toc-inline__list {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    border-inline-start: 2px solid var(--color-line);
+    padding-inline-start: 0.9rem;
+  }
+
+  .toc-inline__item--h3 {
+    padding-inline-start: 0.85rem;
+  }
+
+  .toc-inline .toc-inline__link {
+    display: block;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+
+  .toc-inline .toc-inline__link:hover {
+    color: var(--color-ink);
+  }
+
+  .toc-inline .toc-inline__link.is-active {
+    color: var(--color-accent);
+    font-weight: 600;
   }
 
   /* Logo dot-grid hover animation */

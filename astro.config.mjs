@@ -28,5 +28,10 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss(), contentEditor()], // dev-only admin api + uploads
+    optimizeDeps: {
+      // Pre-bundle the tokenizer so its lazy import in the tokenization post
+      // doesn't trigger an on-the-fly re-optimization + full page reload.
+      include: ['gpt-tokenizer/encoding/cl100k_base'],
+    },
   },
 });

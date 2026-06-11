@@ -129,6 +129,15 @@ const VIZ_NAMES = [
   'ParameterDimmers',
   'PretrainFinetune',
   'LossLandscape',
+  // tokenization (why-hebrew-costs-more)
+  'Utf8Bytes',
+  'BpeSteps',
+  'Tokenizer',
+  'TokenExamples',
+  'TokenPipeline',
+  'TokenCostCompare',
+  'TokenBlindness',
+  'ContextWindow',
 ];
 
 const VIZ_COMPONENTS: JsxComponentDescriptor[] = VIZ_NAMES.map((name) => ({

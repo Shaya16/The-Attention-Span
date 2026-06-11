@@ -11,13 +11,13 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content, remarkPluginFrontmatter } = await render(post);
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
 
 const words = post.body?.split(/\s+/).length ?? 0;
 const minutes = Math.max(1, Math.round(words / 220));
 const readingTime = `${minutes} דקות קריאה`;
 ---
 
-<PostLayout post={post} readingTime={readingTime}>
+<PostLayout post={post} readingTime={readingTime} headings={headings}>
   <Content />
 </PostLayout>
